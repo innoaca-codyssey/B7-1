@@ -19,6 +19,7 @@ function UserRow({
   const [saving, setSaving] = useState(false)
   const limitValue = Number(limit)
   const limitChanged =
+    limit.trim() !== '' &&
     Number.isInteger(limitValue) &&
     limitValue >= 0 &&
     limitValue !== user.token_limit
