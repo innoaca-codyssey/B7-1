@@ -4,14 +4,15 @@ import type { MessageOut } from '../api/types.ts'
 
 type Props = {
   messages: MessageOut[]
+  pending: string | null
 }
 
-function MessageList({ messages }: Props) {
+function MessageList({ messages, pending }: Props) {
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     endRef.current?.scrollIntoView()
-  }, [messages])
+  }, [messages, pending])
 
   return (
     <div className="messages">
@@ -27,6 +28,14 @@ function MessageList({ messages }: Props) {
           )}
         </div>
       ))}
+      {pending !== null && (
+        <>
+          <div className="message user">
+            <div>{pending}</div>
+          </div>
+          <p>답변을 생성하고 있습니다...</p>
+        </>
+      )}
       <div ref={endRef} />
     </div>
   )

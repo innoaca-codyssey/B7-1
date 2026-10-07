@@ -127,3 +127,14 @@ main {
 .message small {
   color: #666;
 }
+
+.chat-input {
+  display: flex;
+  gap: 8px;
+}
+
+.chat-input textarea {
+  flex: 1;
+  resize: none;
+  font: inherit;
+}
