@@ -1,6 +1,7 @@
 from datetime import datetime
+from decimal import Decimal
 
-from sqlalchemy import DateTime, ForeignKey, Index, String, Text, func
+from sqlalchemy import DateTime, ForeignKey, Index, Numeric, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.config import settings
@@ -55,3 +56,17 @@ class Message(Base):
         Index("ix_messages_user_id_created_at", "user_id", "created_at"),
         Index("ix_messages_session_id_created_at", "session_id", "created_at"),
     )
+
+
+class AIModel(Base):
+    __tablename__ = "ai_models"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    code: Mapped[str] = mapped_column(String(50), unique=True)
+    name: Mapped[str] = mapped_column(String(50))
+    provider: Mapped[str] = mapped_column(String(20))
+    multiplier: Mapped[Decimal] = mapped_column(Numeric(4, 2))
+    max_tokens: Mapped[int] = mapped_column(default=4096)
+    is_active: Mapped[bool] = mapped_column(default=True)
+    is_default: Mapped[bool] = mapped_column(default=False)
+    sort_order: Mapped[int] = mapped_column(default=0)
