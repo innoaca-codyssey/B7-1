@@ -94,6 +94,10 @@ h3 {
   font-size: 1rem;
 }
 
+a {
+  color: var(--color-primary);
+}
+
 .error {
   margin: 0;
   color: var(--color-danger);
@@ -164,20 +168,6 @@ main {
   padding: var(--space-5);
 }
 
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 320px;
-  margin: 80px auto;
-}
-
-.auth-form label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 .chat {
   display: grid;
   grid-template-columns: 260px 1fr;
@@ -189,62 +179,6 @@ main {
   display: flex;
   flex-direction: column;
   min-height: 0;
-}
-
-.logs {
-  width: 100%;
-  margin: 16px 0;
-  border-collapse: collapse;
-  font-size: 0.9em;
-}
-
-.logs th,
-.logs td {
-  padding: 6px 8px;
-  border-bottom: 1px solid #ddd;
-  text-align: left;
-}
-
-.logs.clickable tbody tr {
-  cursor: pointer;
-}
-
-.logs.clickable tbody tr:hover {
-  background: #f6f6f6;
-}
-
-.pager {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.logs .nowrap {
-  white-space: nowrap;
-}
-
-.tabs {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid #ddd;
-}
-
-.tabs button {
-  padding: 8px 16px;
-  border: none;
-  border-bottom: 2px solid transparent;
-  background: none;
-  cursor: pointer;
-}
-
-.tabs button.active {
-  border-bottom-color: #333;
-  font-weight: bold;
-}
-
-.logs input[type='number'] {
-  width: 90px;
 }
 
 .alert {
@@ -496,4 +430,185 @@ button.danger:hover:not(:disabled) {
 
 .usage-bar > div.over {
   background: var(--color-danger);
+}
+
+.notice {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+  background: #eaf1fd;
+  color: var(--color-primary);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 360px;
+  margin: 10vh auto;
+  padding: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-panel);
+}
+
+.auth-form h2 {
+  margin: 0;
+  text-align: center;
+}
+
+.auth-form label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 0.9rem;
+}
+
+.auth-form button.primary {
+  padding: 10px;
+}
+
+.auth-form .alert {
+  margin: 0;
+}
+
+.auth-form > p:last-child {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.page-header h2 {
+  margin: 0;
+}
+
+.logs {
+  width: 100%;
+  margin-bottom: var(--space-4);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--color-panel);
+  font-size: 0.9rem;
+}
+
+.logs th,
+.logs td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.logs th {
+  background: #f7f8fb;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.logs tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.logs.clickable tbody tr {
+  cursor: pointer;
+}
+
+.logs.clickable tbody tr:hover {
+  background: #f7f8fb;
+}
+
+.logs .nowrap {
+  white-space: nowrap;
+}
+
+.logs input,
+.logs select,
+.logs button {
+  padding: 4px 8px;
+  font-size: 0.85rem;
+}
+
+.logs input[type='number'] {
+  width: 90px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.badge.ok {
+  background: #e6f4ea;
+  color: #1e7a3a;
+}
+
+.badge.default {
+  background: var(--color-navy);
+  color: #fff;
+}
+
+.badge.off {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.tabs {
+  display: flex;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tabs button {
+  padding: 8px 16px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: none;
+  color: var(--color-muted);
+}
+
+.tabs button:hover:not(:disabled) {
+  background: none;
+  color: var(--color-text);
+}
+
+.tabs button.active {
+  border-bottom-color: var(--color-navy);
+  color: var(--color-navy);
+  font-weight: 600;
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  font-size: 0.9rem;
 }

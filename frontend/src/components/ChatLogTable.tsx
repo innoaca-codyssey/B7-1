@@ -44,8 +44,12 @@ function ChatLogTable({ items, showUser = false, onRowClick }: Props) {
               <td>
                 {item.answer === null ? '응답 없음' : summary(item.answer, 60)}
               </td>
-              <td className={item.status === 'error' ? 'error' : ''}>
-                {item.status === 'error' ? (item.error_code ?? '오류') : '정상'}
+              <td>
+                {item.status === 'error' ? (
+                  <span className="badge off">{item.error_code ?? '오류'}</span>
+                ) : (
+                  <span className="badge ok">정상</span>
+                )}
               </td>
               <td className="nowrap">{item.model_code}</td>
               <td>{item.billed_tokens.toLocaleString()}</td>

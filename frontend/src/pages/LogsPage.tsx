@@ -42,9 +42,11 @@ function LogsPage() {
 
   return (
     <>
-      <h2>내 대화 기록</h2>
-      {usage && <UsageBar usage={usage} />}
-      {error && <p className="error">{error}</p>}
+      <div className="page-header">
+        <h2>내 대화 기록</h2>
+        {usage && <UsageBar usage={usage} />}
+      </div>
+      {error && <p className="alert">{error}</p>}
       {page && (
         <>
           <ChatLogTable
