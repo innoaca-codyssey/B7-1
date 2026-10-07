@@ -6,7 +6,7 @@ from app import models  # noqa: F401
 from app.config import settings
 from app.crud import users
 from app.database import Base, SessionLocal, engine
-from app.routers import auth, logs, sessions
+from app.routers import admin, auth, logs, sessions
 
 
 @asynccontextmanager
@@ -22,3 +22,4 @@ app = FastAPI(title="B7-1 Chatbot API", lifespan=lifespan)
 app.include_router(auth.router)
 app.include_router(sessions.router)
 app.include_router(logs.router)
+app.include_router(admin.router)
