@@ -154,3 +154,31 @@ main {
   gap: 8px;
   margin-bottom: 8px;
 }
+
+.usage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85em;
+}
+
+.usage-bar {
+  width: 160px;
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.usage-bar > div {
+  height: 100%;
+  background: #4a7bd8;
+}
+
+.usage-bar > div.over {
+  background: #c00;
+}
+
+.chat-options .usage {
+  margin-left: auto;
+}
