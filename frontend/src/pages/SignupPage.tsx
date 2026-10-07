@@ -104,7 +104,11 @@ function SignupPage() {
           autoComplete="new-password"
         />
       </label>
-      {error && <p className="alert">{error}</p>}
+      {error && (
+        <p className="alert" role="alert">
+          {error}
+        </p>
+      )}
       <button type="submit" className="primary" disabled={submitting}>
         가입하기
       </button>

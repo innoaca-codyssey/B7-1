@@ -49,7 +49,11 @@ function ChatsTab() {
 
   return (
     <>
-      {error && <p className="alert">{error}</p>}
+      {error && (
+        <p className="alert" role="alert">
+          {error}
+        </p>
+      )}
       <label className="filter">
         사용자{' '}
         <select

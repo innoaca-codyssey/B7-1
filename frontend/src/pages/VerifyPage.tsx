@@ -37,7 +37,9 @@ function VerifyPage() {
     return (
       <div className="auth-form">
         <h2>이메일 인증</h2>
-        <p className="alert">인증할 아이디 정보가 없습니다.</p>
+        <p className="alert" role="alert">
+          인증할 아이디 정보가 없습니다.
+        </p>
         <p>
           <Link to="/login">로그인</Link>에서 다시 시도해 주세요.
         </p>
@@ -96,7 +98,11 @@ function VerifyPage() {
         />
       </label>
       {notice && !error && <p className="notice">{notice}</p>}
-      {error && <p className="alert">{error}</p>}
+      {error && (
+        <p className="alert" role="alert">
+          {error}
+        </p>
+      )}
       <button
         type="submit"
         className="primary"

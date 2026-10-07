@@ -57,7 +57,11 @@ function LoginPage() {
         />
       </label>
       {notice && !error && <p className="notice">{notice}</p>}
-      {error && <p className="alert">{error}</p>}
+      {error && (
+        <p className="alert" role="alert">
+          {error}
+        </p>
+      )}
       <button type="submit" className="primary" disabled={submitting}>
         로그인
       </button>
