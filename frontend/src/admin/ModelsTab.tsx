@@ -38,6 +38,7 @@ function ModelRow({
     edits.sort_order = Number(sortOrder)
   }
   const valid =
+    [multiplier, maxTokens, sortOrder].every((v) => v.trim() !== '') &&
     Number(multiplier) > 0 &&
     Number.isInteger(Number(maxTokens)) &&
     Number(maxTokens) > 0 &&
@@ -46,8 +47,11 @@ function ModelRow({
 
   async function save(patch: ModelPatch) {
     setSaving(true)
-    await onSave(patch)
-    setSaving(false)
+    try {
+      await onSave(patch)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
