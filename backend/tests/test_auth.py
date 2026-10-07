@@ -97,3 +97,14 @@ def test_require_admin(db):
 
     user.role = "admin"
     assert require_admin(user) is user
+
+
+def test_disabled_user_blocked_from_api(client, db):
+    signup_and_login(client)
+    user = users.get_by_username(db, "alice")
+    user.is_active = False
+    db.commit()
+
+    for res in [client.get("/api/sessions"), client.get("/api/me/chats")]:
+        assert res.status_code == 403
+        assert res.json()["detail"]["code"] == "USER_DISABLED"
