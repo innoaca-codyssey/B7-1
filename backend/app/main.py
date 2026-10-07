@@ -28,7 +28,35 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="B7-1 Chatbot API", lifespan=lifespan)
+DESCRIPTION = """
+로그인한 사용자의 질문을 AI API로 전달하고 대화를 저장하는 챗봇 서비스 API입니다.
+
+로그인하면 `access_token` 쿠키(HttpOnly)가 발급되고, 인증이 필요한 API는 이 쿠키로 사용자를
+확인합니다. 이 화면에서 `POST /api/auth/login`을 실행하면 이후 요청에 쿠키가 함께 전송됩니다.
+
+오류는 `{"detail": {"code": "...", "message": "..."}}` 형식으로 반환하며, 입력 형식 오류는
+FastAPI 기본 422 형식입니다.
+"""
+
+TAGS = [
+    {"name": "auth", "description": "회원가입, 이메일 인증, 로그인, 로그아웃"},
+    {"name": "sessions", "description": "대화 목록과 메시지 조회, 생성, 수정, 삭제"},
+    {"name": "chat", "description": "질문 전송과 AI 응답"},
+    {"name": "models", "description": "사용 가능한 모델과 대화 프리셋"},
+    {"name": "me", "description": "내 대화 기록과 이번 달 토큰 사용량"},
+    {"name": "admin", "description": "사용자, 모델, 대화 기록, 사용량 관리 (관리자 전용)"},
+]
+
+app = FastAPI(
+    title="B7-1 Chatbot API",
+    version="1.0.0",
+    description=DESCRIPTION,
+    openapi_tags=TAGS,
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
+    openapi_url="/api/openapi.json",
+    lifespan=lifespan,
+)
 app.include_router(auth.router)
 app.include_router(sessions.router)
 app.include_router(models_router.router)

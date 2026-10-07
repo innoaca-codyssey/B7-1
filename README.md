@@ -4,6 +4,8 @@
 
 서비스 주소: https://chat.codyssey.run
 
+API 문서: https://chat.codyssey.run/api/docs (Swagger UI), https://chat.codyssey.run/api/redoc (ReDoc)
+
 ## 프로젝트 개요
 
 - 문제 정의: 프로그래밍을 공부하다 생긴 질문을 바로 물어볼 곳이 필요하고, 물어본 내용을 나중에 다시 찾아볼 수 있어야 합니다.
@@ -166,7 +168,7 @@ erDiagram
 
 ## API
 
-요청과 응답 예시는 [docs/api.md](docs/api.md)에 정리했습니다. 모든 API는 `/api`로 시작하며, 로그인이 필요한 API는 `access_token` 쿠키로 사용자를 확인합니다.
+요청과 응답 예시는 [docs/api.md](docs/api.md)에, 요청과 응답 스키마는 Swagger UI(https://chat.codyssey.run/api/docs)와 ReDoc(https://chat.codyssey.run/api/redoc)에 있습니다. Swagger UI에서 `POST /api/auth/login`을 실행하면 이후 요청을 로그인 상태로 시험할 수 있습니다. 모든 API는 `/api`로 시작하며, 로그인이 필요한 API는 `access_token` 쿠키로 사용자를 확인합니다.
 
 | 메서드 | 경로 | 설명 | 권한 |
 |---|---|---|---|
@@ -396,7 +398,7 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-브라우저에서 `http://localhost:8081`로 접속합니다.
+브라우저에서 `http://localhost:8081`로 접속합니다. API 문서는 `http://localhost:8081/api/docs`(Swagger UI)와 `http://localhost:8081/api/redoc`에서 확인합니다.
 
 ### 환경 변수
 
@@ -445,7 +447,7 @@ npm ci
 npm run dev
 ```
 
-테스트는 `TEST_DATABASE_URL`(기본 `postgresql+psycopg://chatbot:chatbot@localhost:5433/chatbot_test`)의 DB를 사용하며, 테스트마다 테이블을 삭제하고 다시 생성합니다. 백엔드 설정은 실행 위치의 `.env`를 읽으므로 `backend/`에서 실행할 때는 저장소 루트의 `.env`가 적용되지 않습니다. Vite 개발 서버는 `/api` 요청을 `http://localhost:8000`으로 전달합니다.
+테스트는 `TEST_DATABASE_URL`(기본 `postgresql+psycopg://chatbot:chatbot@localhost:5433/chatbot_test`)의 DB를 사용하며, 테스트마다 테이블을 삭제하고 다시 생성합니다. 백엔드 설정은 실행 위치의 `.env`를 읽으므로 `backend/`에서 실행할 때는 저장소 루트의 `.env`가 적용되지 않습니다. Vite 개발 서버(`http://localhost:5173`)는 `/api` 요청을 `http://localhost:8000`으로 전달하므로, 로컬 개발 중 API 문서는 `http://localhost:5173/api/docs`에서 확인합니다.
 
 ## 팀 구성과 역할
 
