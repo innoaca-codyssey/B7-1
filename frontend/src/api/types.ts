@@ -9,6 +9,11 @@ export type UserOut = {
   created_at: string
 }
 
+export type AdminUserOut = UserOut & {
+  month_used: number
+  session_count: number
+}
+
 export type SessionOut = {
   id: number
   title: string

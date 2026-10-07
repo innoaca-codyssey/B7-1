@@ -234,3 +234,7 @@ main {
   border-bottom-color: #333;
   font-weight: bold;
 }
+
+.logs input[type='number'] {
+  width: 90px;
+}

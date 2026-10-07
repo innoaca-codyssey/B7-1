@@ -1,4 +1,5 @@
 import { useSearchParams } from 'react-router-dom'
+import UsersTab from '../admin/UsersTab.tsx'
 
 const TABS = [
   { key: 'users', label: '사용자' },
@@ -26,6 +27,7 @@ function AdminPage() {
           </button>
         ))}
       </nav>
+      {tab === 'users' && <UsersTab />}
     </>
   )
 }

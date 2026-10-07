@@ -10,6 +10,7 @@ const MESSAGES: Record<string, string> = {
     '선택한 모델을 사용할 수 없습니다. 다른 모델을 선택해 주세요.',
   NETWORK_ERROR: '서버에 연결할 수 없습니다. 네트워크 상태를 확인해 주세요.',
   VALIDATION_ERROR: '입력값을 확인해 주세요.',
+  SELF_MODIFY: '자기 계정의 역할과 활성 상태는 변경할 수 없습니다.',
 }
 
 export function errorMessage(err: unknown, fallback: string) {
