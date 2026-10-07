@@ -17,7 +17,9 @@ function Layout() {
           <NavLink to="/logs">내 대화 기록</NavLink>
           {user?.role === 'admin' && <NavLink to="/admin">관리자</NavLink>}
         </nav>
-        <span className="user">{user?.username}</span>
+        <span className="user">
+          {user?.name}({user?.username})
+        </span>
         <button type="button" onClick={logout}>
           로그아웃
         </button>

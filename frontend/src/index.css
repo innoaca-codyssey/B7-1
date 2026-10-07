@@ -587,6 +587,11 @@ button.danger:hover:not(:disabled) {
   color: #fff;
 }
 
+.badge.warn {
+  background: #fff4e0;
+  color: #9a5b00;
+}
+
 .badge.off {
   background: var(--color-danger-bg);
   color: var(--color-danger);
@@ -733,4 +738,10 @@ button.danger:hover:not(:disabled) {
     margin: var(--space-5) auto;
     padding: var(--space-5);
   }
+}
+
+.auth-form .hint {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
 }

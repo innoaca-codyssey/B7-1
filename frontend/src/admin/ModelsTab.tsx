@@ -153,7 +153,11 @@ function ModelsTab() {
 
   return (
     <>
-      {error && <p className="alert">{error}</p>}
+      {error && (
+        <p className="alert" role="alert">
+          {error}
+        </p>
+      )}
       <table className="logs">
         <thead>
           <tr>
