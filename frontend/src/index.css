@@ -1,0 +1,216 @@
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.topbar .brand {
+  font-weight: bold;
+}
+
+.topbar nav {
+  display: flex;
+  gap: 16px;
+}
+
+.topbar a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.topbar nav a.active {
+  text-decoration: underline;
+}
+
+main {
+  padding: 20px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 320px;
+  margin: 80px auto;
+}
+
+.auth-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.error {
+  color: #c00;
+  margin: 0;
+}
+
+.topbar .user {
+  margin-left: auto;
+}
+
+.chat {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 20px;
+}
+
+.sidebar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar li {
+  display: flex;
+}
+
+.sidebar li > button:first-child {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar li.selected {
+  background: #eee;
+}
+
+.sidebar > button {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.chat > section {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 88px);
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.message {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.message.user {
+  background: #eef3ff;
+  white-space: pre-wrap;
+}
+
+.message.assistant {
+  background: #f6f6f6;
+}
+
+.message.error {
+  background: #fff1f0;
+  border-left: 3px solid #c00;
+  color: #c00;
+}
+
+.message > :first-child {
+  margin-top: 0;
+}
+
+.message small {
+  color: #666;
+}
+
+.chat-input {
+  display: flex;
+  gap: 8px;
+}
+
+.chat-input textarea {
+  flex: 1;
+  resize: none;
+  font: inherit;
+}
+
+.chat-input-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 0.85em;
+}
+
+.chat-options {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.usage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85em;
+}
+
+.usage-bar {
+  width: 160px;
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.usage-bar > div {
+  height: 100%;
+  background: #4a7bd8;
+}
+
+.usage-bar > div.over {
+  background: #c00;
+}
+
+.chat-options .usage {
+  margin-left: auto;
+}
+
+.logs {
+  width: 100%;
+  margin: 16px 0;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.logs th,
+.logs td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.logs tbody tr {
+  cursor: pointer;
+}
+
+.logs tbody tr:hover {
+  background: #f6f6f6;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logs .nowrap {
+  white-space: nowrap;
+}
