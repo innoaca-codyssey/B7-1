@@ -251,13 +251,19 @@ npm run dev
 
 테스트는 `TEST_DATABASE_URL`(기본 `postgresql+psycopg://chatbot:chatbot@localhost:5433/chatbot_test`)의 DB를 사용하며, 테스트마다 테이블을 삭제하고 다시 생성합니다. 백엔드 설정은 실행 위치의 `.env`를 읽으므로 `backend/`에서 실행할 때는 저장소 루트의 `.env`가 적용되지 않습니다. Vite 개발 서버는 `/api` 요청을 `http://localhost:8000`으로 전달합니다.
 
-## 팀 구성
+## 팀 구성과 역할
 
 | 이름 | GitHub | 역할 |
 |---|---|---|
-| 신예준 | pnuece | 백엔드 AI 연동 |
-| 정세영 | JeongSeYoung | 백엔드 인증, 세션, DB |
+| 신예준 | pnuece | 백엔드 AI 연동, CI/CD |
+| 정세영 | ashofrondol | 백엔드 인증, 세션, DB |
 | 김희성 | Logan-kim-the-philosopher | 프론트엔드 |
+
+### 개인별 작업 요약
+
+- 신예준: 저장소 초기 구성과 이슈, PR 템플릿, AI API 설정과 호출 클라이언트(타임아웃, 오류 코드 변환), AI 모델 테이블과 초기 데이터, 프리셋 4종, 챗봇 질문 API와 AI 호출, DB 저장 실패 처리, 요청 로그와 `request_id`, 과금 토큰 계산과 월 사용량 차단, 관리자 모델 관리와 일별 사용량 API, CI 워크플로와 `main` 반영 시 배포
+- 정세영: DB 연결과 테이블 모델, 회원가입과 로그인(bcrypt, JWT 쿠키), 현재 사용자와 관리자 권한 의존성, 대화 세션 API, 내 대화 로그 API와 `check_logs.sql`, 초기 관리자 계정, 관리자 사용자 관리와 대화 로그 API, 사용자 이름과 이메일 인증, README
+- 김희성: React 프로젝트 구성과 API 요청 모듈, 로그인 상태 관리와 보호 라우트, 로그인과 회원가입 화면, 대화 목록과 채팅 화면(모델, 프리셋 선택, 4000자 제한, 오류 안내), 내 대화 기록 화면, 관리자 화면(사용자, 모델, 사용량, 대화 로그 탭), 프론트엔드 Dockerfile과 Nginx 설정, 화면 캡처
 
 ## 브랜치 전략
 
