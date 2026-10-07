@@ -8,6 +8,10 @@ function byUpdatedDesc(a: SessionOut, b: SessionOut) {
   return Date.parse(b.updated_at) - Date.parse(a.updated_at)
 }
 
+function errorMessage(err: unknown, fallback: string) {
+  return err instanceof ApiError ? err.message : fallback
+}
+
 function ChatPage() {
   const [sessions, setSessions] = useState<SessionOut[]>([])
   const [error, setError] = useState('')
@@ -20,17 +24,9 @@ function ChatPage() {
       .get<SessionOut[]>('/sessions')
       .then((list) => setSessions([...list].sort(byUpdatedDesc)))
       .catch((err) =>
-        setError(
-          err instanceof ApiError
-            ? err.message
-            : '대화 목록을 불러오지 못했습니다.',
-        ),
+        setError(errorMessage(err, '대화 목록을 불러오지 못했습니다.')),
       )
   }, [])
-
-  function showError(err: unknown, fallback: string) {
-    setError(err instanceof ApiError ? err.message : fallback)
-  }
 
   async function handleCreate() {
     setError('')
@@ -39,7 +35,7 @@ function ChatPage() {
       setSessions((prev) => [session, ...prev])
       setSearchParams({ session: String(session.id) })
     } catch (err) {
-      showError(err, '새 대화를 만들지 못했습니다.')
+      setError(errorMessage(err, '새 대화를 만들지 못했습니다.'))
     }
   }
 
@@ -52,7 +48,7 @@ function ChatPage() {
         setSearchParams({})
       }
     } catch (err) {
-      showError(err, '대화를 삭제하지 못했습니다.')
+      setError(errorMessage(err, '대화를 삭제하지 못했습니다.'))
     }
   }
 
