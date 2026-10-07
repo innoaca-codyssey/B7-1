@@ -12,7 +12,7 @@ from app.logging_config import log_event
 from app.models import ChatSession, Message, User
 from app.presets import DEFAULT_PRESET, PRESETS
 from app.schemas.chat import ChatRequest, ChatResponse
-from app.services import ai_client
+from app.services import ai_client, quota
 from app.services.ai_client import AIError
 from app.services.quota import billed_tokens
 
@@ -24,6 +24,8 @@ AI_ERROR_MESSAGES = {
 
 
 def handle_chat(db: Session, user: User, body: ChatRequest, request_id: str) -> ChatResponse:
+    quota.check_quota(db, user)
+
     chat_session = None
     if body.session_id is not None:
         chat_session = sessions.get_owned(db, body.session_id, user.id)
@@ -121,6 +123,7 @@ def handle_chat(db: Session, user: User, body: ChatRequest, request_id: str) -> 
         session_id=session_id,
         user_message=user_message,
         assistant_message=assistant_message,
+        usage=quota.get_usage(db, user),
     )
 
 
