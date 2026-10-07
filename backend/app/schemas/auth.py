@@ -15,6 +15,11 @@ class SignupRequest(BaseModel):
         return v
 
 
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
 class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
