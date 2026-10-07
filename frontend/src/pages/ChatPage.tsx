@@ -43,12 +43,15 @@ function ChatPage() {
     setError('')
     try {
       await api.delete(`/sessions/${id}`)
-      setSessions((prev) => prev.filter((s) => s.id !== id))
-      if (id === selectedId) {
-        setSearchParams({})
-      }
     } catch (err) {
-      setError(errorMessage(err, '대화를 삭제하지 못했습니다.'))
+      if (!(err instanceof ApiError && err.status === 404)) {
+        setError(errorMessage(err, '대화를 삭제하지 못했습니다.'))
+        return
+      }
+    }
+    setSessions((prev) => prev.filter((s) => s.id !== id))
+    if (id === selectedId) {
+      setSearchParams({})
     }
   }
 
