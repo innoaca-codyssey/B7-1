@@ -9,7 +9,7 @@ from app.deps import get_current_user
 from app.models import User
 from app.schemas.logs import ChatLogPage
 
-router = APIRouter(prefix="/api/me", tags=["logs"])
+router = APIRouter(prefix="/api/me", tags=["me"])
 
 
 @router.get("/chats", response_model=ChatLogPage)

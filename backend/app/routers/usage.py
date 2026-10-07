@@ -9,7 +9,7 @@ from app.models import User
 from app.schemas.chat import UsageOut
 from app.services import quota
 
-router = APIRouter(prefix="/api/me", tags=["usage"])
+router = APIRouter(prefix="/api/me", tags=["me"])
 
 
 @router.get("/usage", response_model=UsageOut)

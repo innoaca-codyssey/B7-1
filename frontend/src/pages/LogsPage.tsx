@@ -3,14 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client.ts'
 import { errorMessage } from '../api/errors.ts'
 import type { ChatLogPage, UsageOut } from '../api/types.ts'
+import ChatLogTable from '../components/ChatLogTable.tsx'
+import Pager from '../components/Pager.tsx'
 import UsageBar from '../components/UsageBar.tsx'
 
 const LIMIT = 20
-
-function summary(text: string, max: number) {
-  const line = text.replace(/\s+/g, ' ').trim()
-  return line.length > max ? `${line.slice(0, max)}...` : line
-}
 
 function LogsPage() {
   const navigate = useNavigate()
@@ -43,73 +40,31 @@ function LogsPage() {
     }
   }, [offset])
 
-  const total = page?.total ?? 0
-  const pageCount = Math.max(1, Math.ceil(total / LIMIT))
-  const current = offset / LIMIT + 1
-
   return (
     <>
-      <h2>내 대화 기록</h2>
-      {usage && <UsageBar usage={usage} />}
-      {error && <p className="error">{error}</p>}
-      <table className="logs">
-        <thead>
-          <tr>
-            <th>시각</th>
-            <th>대화</th>
-            <th>질문</th>
-            <th>답변</th>
-            <th>상태</th>
-            <th>모델</th>
-            <th>토큰</th>
-          </tr>
-        </thead>
-        <tbody>
-          {page?.items.map((item) => (
-            <tr
-              key={item.id}
-              onClick={() => navigate(`/?session=${item.session_id}`)}
-            >
-              <td className="nowrap">
-                {new Date(item.created_at).toLocaleString('ko-KR', {
-                  dateStyle: 'short',
-                  timeStyle: 'short',
-                })}
-              </td>
-              <td>{item.session_title}</td>
-              <td>{summary(item.question, 40)}</td>
-              <td>
-                {item.answer === null ? '응답 없음' : summary(item.answer, 60)}
-              </td>
-              <td className={item.status === 'error' ? 'error' : ''}>
-                {item.status === 'error' ? (item.error_code ?? '오류') : '정상'}
-              </td>
-              <td className="nowrap">{item.model_code}</td>
-              <td>{item.billed_tokens.toLocaleString()}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {page?.items.length === 0 && <p>대화 기록이 없습니다.</p>}
-      <div className="pager">
-        <button
-          type="button"
-          disabled={offset === 0}
-          onClick={() => setOffset(offset - LIMIT)}
-        >
-          이전
-        </button>
-        <span>
-          {current} / {pageCount} (총 {total}건)
-        </span>
-        <button
-          type="button"
-          disabled={offset + LIMIT >= total}
-          onClick={() => setOffset(offset + LIMIT)}
-        >
-          다음
-        </button>
+      <div className="page-header">
+        <h2>내 대화 기록</h2>
+        {usage && <UsageBar usage={usage} />}
       </div>
+      {error && (
+        <p className="alert" role="alert">
+          {error}
+        </p>
+      )}
+      {page && (
+        <>
+          <ChatLogTable
+            items={page.items}
+            onRowClick={(item) => navigate(`/?session=${item.session_id}`)}
+          />
+          <Pager
+            offset={offset}
+            limit={LIMIT}
+            total={page.total}
+            onChange={setOffset}
+          />
+        </>
+      )}
     </>
   )
 }

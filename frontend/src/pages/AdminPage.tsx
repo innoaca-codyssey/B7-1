@@ -1,5 +1,41 @@
+import { useSearchParams } from 'react-router-dom'
+import ChatsTab from '../admin/ChatsTab.tsx'
+import ModelsTab from '../admin/ModelsTab.tsx'
+import UsageTab from '../admin/UsageTab.tsx'
+import UsersTab from '../admin/UsersTab.tsx'
+
+const TABS = [
+  { key: 'users', label: '사용자' },
+  { key: 'models', label: '모델' },
+  { key: 'usage', label: '사용량' },
+  { key: 'chats', label: '대화 로그' },
+]
+
 function AdminPage() {
-  return <h2>관리자</h2>
+  const [searchParams, setSearchParams] = useSearchParams()
+  const tab = searchParams.get('tab') ?? 'users'
+
+  return (
+    <>
+      <h2>관리자</h2>
+      <nav className="tabs">
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            className={t.key === tab ? 'active' : ''}
+            onClick={() => setSearchParams({ tab: t.key })}
+          >
+            {t.label}
+          </button>
+        ))}
+      </nav>
+      {tab === 'users' && <UsersTab />}
+      {tab === 'models' && <ModelsTab />}
+      {tab === 'usage' && <UsageTab />}
+      {tab === 'chats' && <ChatsTab />}
+    </>
+  )
 }
 
 export default AdminPage

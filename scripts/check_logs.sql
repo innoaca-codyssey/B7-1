@@ -36,7 +36,7 @@ ORDER BY username, created_at DESC;
 SELECT
     u.username,
     COUNT(m.id) FILTER (WHERE m.role = 'user') AS questions,
-    COUNT(m.id) FILTER (WHERE m.status = 'error') AS errors,
+    COUNT(m.id) FILTER (WHERE m.role = 'user' AND m.status = 'error') AS errors,
     COALESCE(SUM(m.input_tokens + m.output_tokens), 0) AS tokens,
     COALESCE(SUM(m.billed_tokens), 0) AS billed_tokens
 FROM users u
