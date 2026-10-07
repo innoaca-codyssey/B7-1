@@ -57,6 +57,11 @@ export type ChatLogPage = {
   total: number
 }
 
+export type AdminChatLogPage = {
+  items: (ChatLogItem & { username: string })[]
+  total: number
+}
+
 export type UsageOut = {
   month_used: number
   token_limit: number
@@ -69,6 +74,24 @@ export type ModelOut = {
   provider: string
   multiplier: number
   is_default: boolean
+}
+
+export type AdminModelOut = {
+  code: string
+  name: string
+  provider: string
+  multiplier: number
+  max_tokens: number
+  is_active: boolean
+  is_default: boolean
+  sort_order: number
+}
+
+export type DailyUsage = {
+  date: string
+  model_code: string
+  billed_tokens: number
+  requests: number
 }
 
 export type PresetOut = {
