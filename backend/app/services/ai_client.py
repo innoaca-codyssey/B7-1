@@ -23,7 +23,7 @@ class AIError(Exception):
 def get_client() -> openai.OpenAI:
     return openai.OpenAI(
         base_url=settings.ai_base_url,
-        api_key=settings.ai_api_key,
+        api_key=settings.ai_api_key.get_secret_value(),
         timeout=settings.ai_timeout_seconds,
         max_retries=0,
     )
