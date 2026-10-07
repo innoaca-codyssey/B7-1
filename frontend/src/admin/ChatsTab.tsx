@@ -49,7 +49,11 @@ function ChatsTab() {
 
   return (
     <>
-      {error && <p className="alert">{error}</p>}
+      {error && (
+        <p className="alert" role="alert">
+          {error}
+        </p>
+      )}
       <label className="filter">
         사용자{' '}
         <select
@@ -62,7 +66,7 @@ function ChatsTab() {
           <option value="">전체</option>
           {users.map((u) => (
             <option key={u.id} value={u.id}>
-              {u.username}
+              {u.name}({u.username})
             </option>
           ))}
         </select>
