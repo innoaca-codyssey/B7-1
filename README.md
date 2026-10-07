@@ -190,6 +190,67 @@ curl -s -b admin-cookies.txt 'https://chat.codyssey.run/api/admin/chats?user_id=
 
 같은 내용은 웹 화면의 내 대화 기록(`/logs`)과 관리자 화면의 대화 로그 탭에서도 확인할 수 있습니다.
 
+## 실행 방법
+
+```bash
+git clone https://github.com/innoaca-codyssey/B7-1.git
+cd B7-1
+cp .env.example .env
+# .env 값 입력
+docker compose up -d --build
+```
+
+브라우저에서 `http://localhost:8081`로 접속합니다.
+
+### 환경 변수
+
+| 이름 | 설명 | 기본값 |
+|---|---|---|
+| `POSTGRES_USER` | PostgreSQL 사용자 | |
+| `POSTGRES_PASSWORD` | PostgreSQL 비밀번호 | |
+| `POSTGRES_DB` | PostgreSQL DB 이름 | |
+| `JWT_SECRET` | 로그인 토큰 서명 키. 32자 이상이어야 하며 짧으면 API가 시작되지 않습니다 | |
+| `JWT_EXPIRE_MINUTES` | 로그인 유지 시간(분) | `1440` |
+| `ADMIN_USERNAME` | 시작 시 생성할 관리자 아이디 | |
+| `ADMIN_PASSWORD` | 시작 시 생성할 관리자 비밀번호. 8자 이상 72바이트 이하 | |
+| `DEFAULT_TOKEN_LIMIT` | 신규 사용자의 월 토큰 한도 | `100000` |
+| `AI_BASE_URL` | AI API 주소 | `https://copa.codyssey.kr/v1` |
+| `AI_API_KEY` | AI API 키 | |
+| `AI_TIMEOUT_SECONDS` | AI API 호출 타임아웃(초) | `30` |
+| `CONTEXT_WINDOW` | AI에 함께 보내는 같은 대화의 최근 메시지 수 | `10` |
+| `SMTP_HOST` | 인증 메일을 보낼 SMTP 서버 | |
+| `SMTP_PORT` | SMTP 포트(STARTTLS) | `587` |
+| `SMTP_USERNAME` | SMTP 사용자 | |
+| `SMTP_PASSWORD` | SMTP 비밀번호 | |
+| `MAIL_FROM` | 인증 메일 발신자 | |
+
+`DATABASE_URL`은 Compose가 `POSTGRES_*` 값으로 만들어 `api` 컨테이너에 전달합니다. 값이 비어 있는 환경 변수는 설정하지 않은 것으로 처리합니다.
+
+`ADMIN_USERNAME`과 `ADMIN_PASSWORD`가 둘 다 있으면 API 시작 시 관리자 계정을 생성합니다. 관리자 계정은 이메일 인증을 마친 상태로 생성됩니다. 같은 아이디의 관리자 계정이 이미 있으면 그대로 사용하고, 같은 아이디의 일반 계정이 이미 있으면 관리자 생성을 건너뛰고 `admin_seed_skipped` 경고 로그를 남깁니다.
+
+`SMTP_HOST`가 비어 있으면 인증 메일을 보내지 않고 `mail_skipped` 경고 로그만 남깁니다. 메일 발송에 실패해도 회원가입은 완료되며, 인증 화면에서 코드를 다시 요청할 수 있습니다. 운영 환경은 Amazon SES의 SMTP 인터페이스를 사용합니다.
+
+`.env`는 `.gitignore`에 포함되어 있습니다.
+
+### 로컬 개발
+
+```bash
+docker run -d --name b7-1-test-db -e POSTGRES_USER=chatbot -e POSTGRES_PASSWORD=chatbot \
+  -e POSTGRES_DB=chatbot_test -p 5433:5432 postgres:16-alpine
+
+cd backend
+uv sync
+uv run pytest
+DATABASE_URL=postgresql+psycopg://chatbot:chatbot@localhost:5433/chatbot_test \
+  JWT_SECRET=<32자 이상 문자열> uv run uvicorn app.main:app --reload
+
+cd ../frontend
+npm ci
+npm run dev
+```
+
+테스트는 `TEST_DATABASE_URL`(기본 `postgresql+psycopg://chatbot:chatbot@localhost:5433/chatbot_test`)의 DB를 사용하며, 테스트마다 테이블을 삭제하고 다시 생성합니다. 백엔드 설정은 실행 위치의 `.env`를 읽으므로 `backend/`에서 실행할 때는 저장소 루트의 `.env`가 적용되지 않습니다. Vite 개발 서버는 `/api` 요청을 `http://localhost:8000`으로 전달합니다.
+
 ## 팀 구성
 
 | 이름 | GitHub | 역할 |
