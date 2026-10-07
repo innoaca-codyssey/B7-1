@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { api, ApiError } from '../api/client.ts'
 import { useAuth } from '../auth/AuthContext.ts'
 
@@ -18,6 +18,7 @@ function validate(username: string, password: string) {
 
 function SignupPage() {
   const { user, login } = useAuth()
+  const navigate = useNavigate()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -37,13 +38,19 @@ function SignupPage() {
     setSubmitting(true)
     try {
       await api.post('/auth/signup', { username, password })
-      await login(username, password)
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : '회원가입에 실패했습니다.',
       )
-    } finally {
       setSubmitting(false)
+      return
+    }
+    try {
+      await login(username, password)
+    } catch {
+      navigate('/login', {
+        state: { notice: '가입이 완료되었습니다. 로그인해 주세요.' },
+      })
     }
   }
 

@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useLocation } from 'react-router-dom'
 import { ApiError } from '../api/client.ts'
 import { useAuth } from '../auth/AuthContext.ts'
 
 function LoginPage() {
   const { user, login } = useAuth()
+  const notice = (useLocation().state as { notice?: string } | null)?.notice
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -49,6 +50,7 @@ function LoginPage() {
           required
         />
       </label>
+      {notice && !error && <p>{notice}</p>}
       {error && <p className="error">{error}</p>}
       <button type="submit" disabled={submitting}>
         로그인
