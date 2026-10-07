@@ -108,3 +108,17 @@ def test_chat_other_users_session(client, login, ai_calls, db):
 
     res = client.post("/api/chat", json={"session_id": session_id, "message": "안녕"})
     assert res.status_code == 404
+
+
+def test_chat_releases_transaction_during_ai_call(client, login, db, monkeypatch):
+    in_transaction = []
+
+    def fake_chat(model, messages, max_tokens):
+        in_transaction.append(db.in_transaction())
+        return AIResult(content="답변", input_tokens=1, output_tokens=1)
+
+    monkeypatch.setattr(ai_client, "chat", fake_chat)
+    session_id = client.post("/api/chat", json={"message": "질문 1"}).json()["session_id"]
+    client.post("/api/chat", json={"session_id": session_id, "message": "질문 2"})
+
+    assert in_transaction == [False, False]
