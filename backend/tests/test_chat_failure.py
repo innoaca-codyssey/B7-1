@@ -71,7 +71,8 @@ def test_failed_turn_excluded_from_context(client, login, monkeypatch):
 
 
 def test_chat_db_save_failure(client, login, db, monkeypatch, caplog):
-    answer_with(monkeypatch, [])
+    sent = []
+    answer_with(monkeypatch, sent)
     create = messages.create
 
     def failing_create(db, **fields):
@@ -81,14 +82,21 @@ def test_chat_db_save_failure(client, login, db, monkeypatch, caplog):
 
     monkeypatch.setattr(messages, "create", failing_create)
 
-    res = client.post("/api/chat", json={"message": "안녕"})
+    res = client.post("/api/chat", json={"message": "저장 실패 질문"})
 
     assert res.status_code == 500
-    assert res.json()["detail"]["code"] == "DB_ERROR"
+    detail = res.json()["detail"]
+    assert detail["code"] == "DB_ERROR"
+    question = db.query(Message).filter_by(session_id=detail["session_id"]).one()
+    assert (question.status, question.error_code) == ("error", "DB_ERROR")
     assert any(
         r.levelno == logging.ERROR and r.message.startswith("db_save_fail user_id=")
         for r in caplog.records
     )
 
     monkeypatch.setattr(messages, "create", create)
-    assert client.post("/api/chat", json={"message": "안녕"}).status_code == 200
+    sent.clear()
+    payload = {"session_id": detail["session_id"], "message": "다시 질문"}
+    res = client.post("/api/chat", json=payload)
+    assert res.status_code == 200
+    assert [m["content"] for m in sent[1:]] == ["다시 질문"]
