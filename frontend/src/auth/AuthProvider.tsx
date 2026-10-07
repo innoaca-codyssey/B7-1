@@ -20,7 +20,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function logout() {
-    await api.post('/auth/logout')
+    await api.post('/auth/logout').catch(() => {})
     setUser(null)
   }
 
