@@ -44,5 +44,8 @@ def list_active(db: Session) -> list[AIModel]:
 
 def get_active(db: Session, code: str | None) -> AIModel | None:
     stmt = select(AIModel).where(AIModel.is_active)
-    stmt = stmt.where(AIModel.code == code) if code else stmt.where(AIModel.is_default)
-    return db.scalar(stmt)
+    if code is None:
+        stmt = stmt.where(AIModel.is_default).order_by(AIModel.sort_order)
+    else:
+        stmt = stmt.where(AIModel.code == code)
+    return db.scalars(stmt).first()
