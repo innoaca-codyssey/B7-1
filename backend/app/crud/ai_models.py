@@ -1,7 +1,9 @@
 from decimal import Decimal
 
 from sqlalchemy import select
+from sqlalchemy import update as sa_update
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models import AIModel
@@ -49,3 +51,34 @@ def get_active(db: Session, code: str | None) -> AIModel | None:
     else:
         stmt = stmt.where(AIModel.code == code)
     return db.scalars(stmt).first()
+
+
+def list_all(db: Session) -> list[AIModel]:
+    return list(db.scalars(select(AIModel).order_by(AIModel.sort_order)))
+
+
+def get_by_code(db: Session, code: str) -> AIModel | None:
+    return db.scalar(select(AIModel).where(AIModel.code == code))
+
+
+class DefaultModelConflictError(Exception):
+    pass
+
+
+def update(db: Session, model: AIModel, fields: dict) -> AIModel:
+    try:
+        if fields.get("is_default"):
+            db.scalars(select(AIModel).where(AIModel.is_default).with_for_update()).all()
+            db.execute(
+                sa_update(AIModel)
+                .where(AIModel.is_default, AIModel.id != model.id)
+                .values(is_default=False)
+            )
+        for key, value in fields.items():
+            setattr(model, key, value)
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        raise DefaultModelConflictError from e
+    db.refresh(model)
+    return model
