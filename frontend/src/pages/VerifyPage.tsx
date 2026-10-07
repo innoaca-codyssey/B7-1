@@ -56,6 +56,9 @@ function VerifyPage() {
       })
     } catch (err) {
       setError(errorMessage(err, '인증하지 못했습니다.'))
+      if (err instanceof ApiError && err.code === 'TOO_MANY_ATTEMPTS') {
+        setCode('')
+      }
       setSubmitting(false)
     }
   }

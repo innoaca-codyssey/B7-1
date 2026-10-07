@@ -19,6 +19,8 @@ const MESSAGES: Record<string, string> = {
   INVALID_CODE: '인증 코드가 올바르지 않습니다.',
   CODE_EXPIRED: '인증 코드가 만료되었습니다. 코드를 다시 받아 주세요.',
   TOO_MANY_REQUESTS: '잠시 후 다시 요청해 주세요.',
+  TOO_MANY_ATTEMPTS:
+    '인증 시도 횟수를 초과했습니다. 코드 다시 받기로 새 코드를 받아 주세요.',
   SELF_MODIFY: '자기 계정의 역할과 활성 상태는 변경할 수 없습니다.',
 }
 
