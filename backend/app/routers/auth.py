@@ -65,6 +65,14 @@ def verify_email(body: VerifyEmailRequest, db: Annotated[Session, Depends(get_db
             status_code=400,
             detail={"code": "INVALID_CODE", "message": "인증 코드가 올바르지 않습니다."},
         ) from None
+    except verification.TooManyAttemptsError:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": "TOO_MANY_ATTEMPTS",
+                "message": "인증 시도 횟수를 초과했습니다. 코드를 다시 요청해 주세요.",
+            },
+        ) from None
 
 
 @router.post("/resend-code", status_code=204)

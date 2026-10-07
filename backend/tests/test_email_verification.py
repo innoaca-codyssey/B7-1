@@ -41,7 +41,7 @@ def test_wrong_code_limit(client, db, outbox):
 
     res = verify(client, code, username="alice")
     assert res.status_code == 400
-    assert res.json()["detail"]["code"] == "INVALID_CODE"
+    assert res.json()["detail"]["code"] == "TOO_MANY_ATTEMPTS"
 
 
 def test_expired_code(client, db, outbox):

@@ -26,6 +26,10 @@ class CodeExpiredError(Exception):
     pass
 
 
+class TooManyAttemptsError(Exception):
+    pass
+
+
 class TooManyRequestsError(Exception):
     pass
 
@@ -48,7 +52,7 @@ def verify_code(db: Session, user: User | None, code: str) -> User:
     if not user or user.email_verified_at or not verification:
         raise InvalidCodeError
     if verification.attempts >= MAX_ATTEMPTS:
-        raise InvalidCodeError
+        raise TooManyAttemptsError
     if verification.expires_at < datetime.now(UTC):
         raise CodeExpiredError
     if not hmac.compare_digest(verification.code_hash, _hash(code)):
