@@ -82,3 +82,19 @@ def list_chats(
     )
     items = [dict(row) for row in db.execute(stmt).mappings()]
     return items, db.scalar(total_stmt)
+
+
+def usage_by_day(db: Session, since: datetime) -> list:
+    day = func.date(func.timezone("Asia/Seoul", Message.created_at)).label("date")
+    stmt = (
+        select(
+            day,
+            Message.model_code,
+            func.sum(Message.billed_tokens).label("billed_tokens"),
+            func.count(Message.id).label("requests"),
+        )
+        .where(Message.role == "assistant", Message.status == "ok", Message.created_at >= since)
+        .group_by(day, Message.model_code)
+        .order_by(day, Message.model_code)
+    )
+    return list(db.execute(stmt))
