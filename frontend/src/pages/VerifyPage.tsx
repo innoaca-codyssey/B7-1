@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import {
   Link,
   useLocation,
@@ -23,6 +23,8 @@ function VerifyPage() {
     fromSignup ? '가입한 이메일로 인증 코드를 보냈습니다.' : '',
   )
   const [submitting, setSubmitting] = useState(false)
+  const [resending, setResending] = useState(false)
+  const resendingRef = useRef(false)
   const [cooldown, setCooldown] = useState(fromSignup ? RESEND_SECONDS : 0)
 
   useEffect(() => {
@@ -66,6 +68,11 @@ function VerifyPage() {
   }
 
   async function handleResend() {
+    if (resendingRef.current || cooldown > 0) {
+      return
+    }
+    resendingRef.current = true
+    setResending(true)
     setError('')
     setNotice('')
     try {
@@ -77,6 +84,9 @@ function VerifyPage() {
       if (err instanceof ApiError && err.code === 'TOO_MANY_REQUESTS') {
         setCooldown(RESEND_SECONDS)
       }
+    } finally {
+      resendingRef.current = false
+      setResending(false)
     }
   }
 
@@ -110,7 +120,11 @@ function VerifyPage() {
       >
         인증하기
       </button>
-      <button type="button" disabled={cooldown > 0} onClick={handleResend}>
+      <button
+        type="button"
+        disabled={resending || cooldown > 0}
+        onClick={handleResend}
+      >
         {cooldown > 0 ? `코드 다시 받기 (${cooldown}초)` : '코드 다시 받기'}
       </button>
       <p>
