@@ -551,7 +551,7 @@ HTTP 200
 
 ## 관리자
 
-`ADMIN_USERNAME`과 `ADMIN_PASSWORD`가 설정되어 있으면 서버 시작 시 관리자 계정이 생성됩니다. 일반 사용자가 관리자 API에 접근하면 403입니다.
+`ADMIN_USERNAME`과 `ADMIN_PASSWORD`가 설정되어 있으면 서버 시작 시 관리자 계정이 생성됩니다. 이 계정은 이메일 없이 인증 완료 상태로 생성됩니다. 일반 사용자가 관리자 API에 접근하면 403입니다.
 
 ```
 GET /api/admin/users
@@ -571,20 +571,26 @@ HTTP 200
     {
         "id": 1,
         "username": "admin",
+        "display_name": "admin",
+        "email": null,
+        "email_verified_at": "2026-10-07T08:59:28.344407Z",
         "role": "admin",
         "is_active": true,
         "token_limit": 100000,
-        "created_at": "2026-10-07T08:02:56.426460Z",
+        "created_at": "2026-10-07T08:59:28.155711Z",
         "month_used": 0,
         "session_count": 0
     },
     {
         "id": 2,
         "username": "alice",
+        "display_name": "앨리스",
+        "email": "alice@example.com",
+        "email_verified_at": "2026-10-07T08:59:47.566223Z",
         "role": "user",
         "is_active": true,
         "token_limit": 100000,
-        "created_at": "2026-10-07T08:03:13.207872Z",
+        "created_at": "2026-10-07T08:59:46.644802Z",
         "month_used": 0,
         "session_count": 1
     }
@@ -597,10 +603,13 @@ HTTP 200
 {
     "id": 2,
     "username": "alice",
+    "display_name": "앨리스",
+    "email": "alice@example.com",
+    "email_verified_at": "2026-10-07T08:59:47.566223Z",
     "role": "user",
     "is_active": true,
     "token_limit": 50000,
-    "created_at": "2026-10-07T08:03:13.207872Z",
+    "created_at": "2026-10-07T08:59:46.644802Z",
     "month_used": 0,
     "session_count": 1
 }
@@ -617,7 +626,7 @@ HTTP 400
 }
 ```
 
-`/api/admin/chats`는 `/api/me/chats`와 같은 형식에 `username`을 더해 반환하며, `user_id`를 지정하면 해당 사용자의 기록만 조회합니다.
+`/api/admin/chats`는 `/api/me/chats`와 같은 형식에 `username`과 `display_name`을 더해 반환하며, `user_id`를 지정하면 해당 사용자의 기록만 조회합니다.
 
 ```
 GET /api/admin/chats?user_id=2&limit=1
@@ -625,20 +634,21 @@ HTTP 200
 {
     "items": [
         {
-            "id": 3,
+            "id": 1,
             "session_id": 1,
-            "session_title": "파이썬 리스트 질문",
-            "question": "timeout 긴 글 요약해줘",
-            "answer": "현재 응답이 지연되고 있어요. 잠시 후 다시 시도해 주세요.",
+            "session_title": "리스트와 튜플의 차이를 알려 주세요",
+            "question": "리스트와 튜플의 차이를 알려 주세요",
+            "answer": "AI 응답을 받지 못했어요. 잠시 후 다시 시도해 주세요.",
             "status": "error",
-            "error_code": "AI_TIMEOUT",
+            "error_code": "AI_ERROR",
             "model_code": "gpt-5-mini",
             "billed_tokens": 0,
-            "created_at": "2026-10-07T08:03:14.644619Z",
-            "username": "alice"
+            "created_at": "2026-10-07T08:59:47.862001Z",
+            "username": "alice",
+            "display_name": "앨리스"
         }
     ],
-    "total": 2
+    "total": 1
 }
 ```
 
