@@ -3,7 +3,7 @@ export type Role = 'user' | 'admin'
 export type UserOut = {
   id: number
   username: string
-  display_name: string
+  name: string
   role: Role
   is_active: boolean
   token_limit: number
@@ -59,7 +59,7 @@ export type ChatLogPage = {
 }
 
 export type AdminChatLogPage = {
-  items: (ChatLogItem & { username: string; display_name: string })[]
+  items: (ChatLogItem & { username: string; name: string })[]
   total: number
 }
 

@@ -18,7 +18,7 @@ function Layout() {
           {user?.role === 'admin' && <NavLink to="/admin">관리자</NavLink>}
         </nav>
         <span className="user">
-          {user?.display_name}({user?.username})
+          {user?.name}({user?.username})
         </span>
         <button type="button" onClick={logout}>
           로그아웃

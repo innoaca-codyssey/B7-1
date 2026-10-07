@@ -62,7 +62,7 @@ function ChatsTab() {
           <option value="">전체</option>
           {users.map((u) => (
             <option key={u.id} value={u.id}>
-              {u.display_name}({u.username})
+              {u.name}({u.username})
             </option>
           ))}
         </select>

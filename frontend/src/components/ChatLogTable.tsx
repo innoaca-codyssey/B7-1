@@ -1,6 +1,6 @@
 import type { ChatLogItem } from '../api/types.ts'
 
-type Item = ChatLogItem & { username?: string; display_name?: string }
+type Item = ChatLogItem & { username?: string; name?: string }
 
 type Props = {
   items: Item[]
@@ -34,7 +34,7 @@ function ChatLogTable({ items, showUser = false, onRowClick }: Props) {
               </td>
               {showUser && (
                 <td className="nowrap">
-                  {item.display_name}({item.username})
+                  {item.name}({item.username})
                 </td>
               )}
               <td

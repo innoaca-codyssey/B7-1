@@ -35,7 +35,7 @@ function UserRow({
 
   return (
     <tr>
-      <td>{user.display_name}</td>
+      <td>{user.name}</td>
       <td>
         {user.username}
         {isSelf && ' (나)'}
