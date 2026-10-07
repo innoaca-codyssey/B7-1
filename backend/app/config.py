@@ -6,5 +6,10 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+psycopg://chatbot:chatbot@localhost:5432/chatbot"
 
+    ai_base_url: str = "https://copa.codyssey.kr/v1"
+    ai_api_key: str = ""
+    ai_timeout_seconds: float = 30
+    context_window: int = 10
+
 
 settings = Settings()
