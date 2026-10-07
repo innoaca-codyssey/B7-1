@@ -275,7 +275,7 @@ curl -s -b cookies.txt 'https://chat.codyssey.run/api/me/chats?limit=2'
 }
 ```
 
-관리자 계정은 전체 사용자의 대화를 조회할 수 있고, `user_id`로 특정 사용자만 조회할 수 있습니다. 응답 항목에는 `username`과 `display_name`이 추가됩니다.
+관리자 계정은 전체 사용자의 대화를 조회할 수 있고, `user_id`로 특정 사용자만 조회할 수 있습니다. 응답 항목에는 `username`과 이름(`name`)이 추가됩니다.
 
 ```bash
 curl -s -b admin-cookies.txt 'https://chat.codyssey.run/api/admin/chats?user_id=2&limit=5'
