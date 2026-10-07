@@ -40,6 +40,7 @@ function UserRow({
         {user.username}
         {isSelf && ' (나)'}
       </td>
+      <td>{user.email}</td>
       <td>
         <select
           value={user.role}
@@ -51,6 +52,11 @@ function UserRow({
         </select>
       </td>
       <td className="nowrap">
+        {user.email_verified_at === null && (
+          <>
+            <span className="badge warn">미인증</span>{' '}
+          </>
+        )}
         <span className={user.is_active ? 'badge ok' : 'badge off'}>
           {user.is_active ? '활성' : '비활성'}
         </span>{' '}
@@ -122,6 +128,7 @@ function UsersTab() {
           <tr>
             <th>이름</th>
             <th>아이디</th>
+            <th>이메일</th>
             <th>역할</th>
             <th>상태</th>
             <th>이번 달 사용량 / 할당량</th>
