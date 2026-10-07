@@ -1,6 +1,6 @@
 import pytest
 
-from app.models import Message
+from app.models import AIModel, Message
 
 
 @pytest.fixture
@@ -92,3 +92,34 @@ def test_list_messages(client, login, db):
     assert res.status_code == 200
     assert [m["content"] for m in res.json()] == ["질문", "답변"]
     assert res.json()[1]["status"] == "ok"
+
+
+def test_create_session_uses_default_model(client, login, db):
+    login("alice")
+    db.query(AIModel).filter_by(code="gpt-5-mini").update({"is_default": False})
+    db.query(AIModel).filter_by(code="gpt-5.4").update({"is_default": True})
+    db.commit()
+
+    res = client.post("/api/sessions", json={})
+    assert res.status_code == 201
+    assert res.json()["model_code"] == "gpt-5.4"
+
+
+def test_session_model_unavailable(client, login, db):
+    login("alice")
+    db.query(AIModel).filter_by(code="gpt-5.5").update({"is_active": False})
+    db.commit()
+
+    for code in ["unknown-model", "gpt-5.5"]:
+        res = client.post("/api/sessions", json={"model_code": code})
+        assert res.status_code == 400
+        assert res.json()["detail"]["code"] == "MODEL_UNAVAILABLE"
+
+    session_id = client.post("/api/sessions", json={}).json()["id"]
+    res = client.patch(f"/api/sessions/{session_id}", json={"model_code": "gpt-5.5"})
+    assert res.status_code == 400
+    assert res.json()["detail"]["code"] == "MODEL_UNAVAILABLE"
+
+    res = client.patch(f"/api/sessions/{session_id}", json={"model_code": "claude-sonnet-4"})
+    assert res.status_code == 200
+    assert res.json()["model_code"] == "claude-sonnet-4"

@@ -89,3 +89,68 @@ main {
   width: 100%;
   margin-bottom: 8px;
 }
+
+.chat > section {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 88px);
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.message {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.message.user {
+  background: #eef3ff;
+  white-space: pre-wrap;
+}
+
+.message.assistant {
+  background: #f6f6f6;
+}
+
+.message.error {
+  background: #fff1f0;
+  border-left: 3px solid #c00;
+  color: #c00;
+}
+
+.message > :first-child {
+  margin-top: 0;
+}
+
+.message small {
+  color: #666;
+}
+
+.chat-input {
+  display: flex;
+  gap: 8px;
+}
+
+.chat-input textarea {
+  flex: 1;
+  resize: none;
+  font: inherit;
+}
+
+.chat-input-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 0.85em;
+}
+
+.chat-options {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
