@@ -55,7 +55,7 @@
 | 403 | `USER_DISABLED` | 비활성화된 계정 |
 | 403 | `EMAIL_NOT_VERIFIED` | 이메일 인증 전 로그인 |
 | 403 | `FORBIDDEN` | 관리자 API에 일반 사용자가 접근 |
-| 404 | `NOT_FOUND` | 없거나 본인 것이 아닌 대화, 없는 모델 |
+| 404 | `NOT_FOUND` | 없거나 본인 것이 아닌 대화, 없는 모델, 관리자 수정 대상 사용자 없음 |
 | 409 | `USERNAME_TAKEN` | 이미 사용 중인 아이디로 가입 |
 | 409 | `EMAIL_TAKEN` | 이미 사용 중인 이메일로 가입 |
 | 409 | `DEFAULT_MODEL_CONFLICT` | 여러 관리자가 동시에 기본 모델을 변경 |
