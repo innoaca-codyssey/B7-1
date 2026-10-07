@@ -44,7 +44,7 @@ export type ChatLogItem = {
   session_id: number
   session_title: string
   question: string
-  answer: string
+  answer: string | null
   status: 'ok' | 'error'
   error_code: string | null
   model_code: string | null
