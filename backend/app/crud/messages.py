@@ -1,4 +1,4 @@
-from sqlalchemy import and_, func, select
+from sqlalchemy import and_, case, func, select
 from sqlalchemy.orm import Session, aliased
 
 from app.models import ChatSession, Message, User
@@ -37,8 +37,8 @@ def list_chats(
             User.username,
             question.content.label("question"),
             answer.content.label("answer"),
-            func.coalesce(answer.status, question.status).label("status"),
-            answer.error_code,
+            case((answer.id.is_(None), "error"), else_=answer.status).label("status"),
+            func.coalesce(answer.error_code, question.error_code).label("error_code"),
             func.coalesce(answer.model_code, question.model_code).label("model_code"),
             (question.billed_tokens + func.coalesce(answer.billed_tokens, 0)).label(
                 "billed_tokens"

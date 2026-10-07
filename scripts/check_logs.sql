@@ -6,6 +6,7 @@ WITH paired AS (
         m.session_id,
         m.role,
         m.content,
+        m.error_code,
         m.created_at,
         LEAD(m.id) OVER (PARTITION BY m.session_id ORDER BY m.id) AS next_id
     FROM messages m
@@ -16,8 +17,8 @@ chats AS (
         s.title AS session_title,
         q.content AS question,
         a.content AS answer,
-        COALESCE(a.status, 'ok') AS status,
-        a.error_code,
+        CASE WHEN a.id IS NULL THEN 'error' ELSE a.status END AS status,
+        COALESCE(a.error_code, q.error_code) AS error_code,
         q.created_at,
         ROW_NUMBER() OVER (PARTITION BY q.user_id ORDER BY q.created_at DESC, q.id DESC) AS rn
     FROM paired q
