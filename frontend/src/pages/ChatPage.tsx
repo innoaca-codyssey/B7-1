@@ -200,30 +200,32 @@ function ChatPage() {
         {error && <p className="alert">{error}</p>}
         <h2 className="chat-title">{selected ? selected.title : '새 대화'}</h2>
         <MessageList messages={messages} pending={pending} />
-        <div className="chat-options">
-          <select
-            value={model ?? ''}
-            onChange={(e) => setModelCode(e.target.value)}
-          >
-            {models.map((m) => (
-              <option key={m.code} value={m.code}>
-                {m.name} (x{m.multiplier})
-              </option>
-            ))}
-          </select>
-          <select
-            value={preset ?? ''}
-            onChange={(e) => setPresetCode(e.target.value)}
-          >
-            {presets.map((p) => (
-              <option key={p.code} value={p.code} title={p.description}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-          {usage && <UsageBar usage={usage} />}
+        <div className="composer">
+          <div className="chat-options">
+            <select
+              value={model ?? ''}
+              onChange={(e) => setModelCode(e.target.value)}
+            >
+              {models.map((m) => (
+                <option key={m.code} value={m.code}>
+                  {m.name} (x{m.multiplier})
+                </option>
+              ))}
+            </select>
+            <select
+              value={preset ?? ''}
+              onChange={(e) => setPresetCode(e.target.value)}
+            >
+              {presets.map((p) => (
+                <option key={p.code} value={p.code} title={p.description}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            {usage && <UsageBar usage={usage} />}
+          </div>
+          <ChatInput sending={pending !== null} onSend={handleSend} />
         </div>
-        <ChatInput sending={pending !== null} onSend={handleSend} />
       </section>
     </div>
   )
