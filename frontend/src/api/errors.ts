@@ -10,6 +10,10 @@ const MESSAGES: Record<string, string> = {
     '선택한 모델을 사용할 수 없습니다. 다른 모델을 선택해 주세요.',
   NETWORK_ERROR: '서버에 연결할 수 없습니다. 네트워크 상태를 확인해 주세요.',
   VALIDATION_ERROR: '입력값을 확인해 주세요.',
+  DEFAULT_MODEL_CONFLICT:
+    '다른 관리자가 기본 모델을 변경했습니다. 목록을 새로 불러왔습니다.',
+  DEFAULT_MODEL_REQUIRED:
+    '기본 모델은 활성 상태여야 합니다. 다른 모델을 기본으로 지정한 뒤 변경해 주세요.',
   SELF_MODIFY: '자기 계정의 역할과 활성 상태는 변경할 수 없습니다.',
 }
 
