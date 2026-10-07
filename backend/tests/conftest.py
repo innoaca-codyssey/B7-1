@@ -3,6 +3,7 @@ import os
 os.environ["DATABASE_URL"] = os.getenv(
     "TEST_DATABASE_URL", "postgresql+psycopg://chatbot:chatbot@localhost:5433/chatbot_test"
 )
+os.environ.setdefault("JWT_SECRET", "test-secret-key-for-pytest-only-32b")
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
