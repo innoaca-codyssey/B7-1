@@ -15,8 +15,13 @@ async function fetchSessions() {
   return [...list].sort(byUpdatedDesc)
 }
 
+function errorMessage(err: unknown, fallback: string) {
+  return err instanceof ApiError ? err.message : fallback
+}
+
 function ChatPage() {
   const [sessions, setSessions] = useState<SessionOut[]>([])
+  const [sessionsLoaded, setSessionsLoaded] = useState(false)
   const [error, setError] = useState('')
   const [pending, setPending] = useState<string | null>(null)
   const [searchParams, setSearchParams] = useSearchParams()
@@ -27,49 +32,46 @@ function ChatPage() {
     messages: MessageOut[]
   } | null>(null)
   const messages =
-    selectedId !== null && loaded?.sessionId === selectedId
-      ? loaded.messages
-      : []
+    selected && loaded?.sessionId === selected.id ? loaded.messages : []
 
   useEffect(() => {
     fetchSessions()
-      .then(setSessions)
+      .then((list) => {
+        setSessions(list)
+        setSessionsLoaded(true)
+      })
       .catch((err) =>
-        setError(
-          err instanceof ApiError
-            ? err.message
-            : '대화 목록을 불러오지 못했습니다.',
-        ),
+        setError(errorMessage(err, '대화 목록을 불러오지 못했습니다.')),
       )
   }, [])
 
   useEffect(() => {
-    if (selectedId === null) {
+    if (sessionsLoaded && selectedId !== null && !selected) {
+      setSearchParams({}, { replace: true })
+    }
+  }, [sessionsLoaded, selectedId, selected, setSearchParams])
+
+  const loadId = selected ? selected.id : null
+
+  useEffect(() => {
+    if (loadId === null) {
       return
     }
     let ignore = false
     api
-      .get<MessageOut[]>(`/sessions/${selectedId}/messages`)
+      .get<MessageOut[]>(`/sessions/${loadId}/messages`)
       .then((list) => {
         if (!ignore) {
-          setLoaded({ sessionId: selectedId, messages: list })
+          setLoaded({ sessionId: loadId, messages: list })
         }
       })
       .catch((err) =>
-        setError(
-          err instanceof ApiError
-            ? err.message
-            : '메시지를 불러오지 못했습니다.',
-        ),
+        setError(errorMessage(err, '메시지를 불러오지 못했습니다.')),
       )
     return () => {
       ignore = true
     }
-  }, [selectedId])
-
-  function showError(err: unknown, fallback: string) {
-    setError(err instanceof ApiError ? err.message : fallback)
-  }
+  }, [loadId])
 
   async function handleCreate() {
     setError('')
@@ -78,7 +80,7 @@ function ChatPage() {
       setSessions((prev) => [session, ...prev])
       setSearchParams({ session: String(session.id) })
     } catch (err) {
-      showError(err, '새 대화를 만들지 못했습니다.')
+      setError(errorMessage(err, '새 대화를 만들지 못했습니다.'))
     }
   }
 
@@ -86,40 +88,46 @@ function ChatPage() {
     setError('')
     try {
       await api.delete(`/sessions/${id}`)
-      setSessions((prev) => prev.filter((s) => s.id !== id))
-      if (id === selectedId) {
-        setSearchParams({})
-      }
     } catch (err) {
-      showError(err, '대화를 삭제하지 못했습니다.')
+      if (!(err instanceof ApiError && err.status === 404)) {
+        setError(errorMessage(err, '대화를 삭제하지 못했습니다.'))
+        return
+      }
+    }
+    setSessions((prev) => prev.filter((s) => s.id !== id))
+    if (id === selectedId) {
+      setSearchParams({})
     }
   }
 
   async function handleSend(message: string) {
     setError('')
     setPending(message)
+    let res: ChatResponse
     try {
-      const res = await api.post<ChatResponse>('/chat', {
-        session_id: selectedId ?? undefined,
+      res = await api.post<ChatResponse>('/chat', {
+        session_id: selected?.id,
         message,
       })
-      setLoaded({
-        sessionId: res.session_id,
-        messages: [...messages, res.user_message, res.assistant_message],
-      })
+    } catch (err) {
+      setError(errorMessage(err, '메시지를 보내지 못했습니다.'))
+      setPending(null)
+      return false
+    }
+    setLoaded({
+      sessionId: res.session_id,
+      messages: [...messages, res.user_message, res.assistant_message],
+    })
+    try {
+      setSessions(await fetchSessions())
       if (res.session_id !== selectedId) {
         setSearchParams({ session: String(res.session_id) })
       }
-      fetchSessions()
-        .then(setSessions)
-        .catch((err) => showError(err, '대화 목록을 불러오지 못했습니다.'))
-      return true
     } catch (err) {
-      showError(err, '메시지를 보내지 못했습니다.')
-      return false
-    } finally {
-      setPending(null)
+      setError(errorMessage(err, '대화 목록을 불러오지 못했습니다.'))
     }
+    setPending(null)
+    return true
   }
 
   return (
