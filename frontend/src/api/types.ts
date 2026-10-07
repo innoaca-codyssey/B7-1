@@ -4,7 +4,7 @@ export type UserOut = {
   id: number
   username: string
   name: string
-  email: string
+  email: string | null
   email_verified_at: string | null
   role: Role
   is_active: boolean

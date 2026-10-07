@@ -40,7 +40,7 @@ function UserRow({
         {user.username}
         {isSelf && ' (나)'}
       </td>
-      <td>{user.email}</td>
+      <td>{user.email ?? '-'}</td>
       <td>
         <select
           value={user.role}
