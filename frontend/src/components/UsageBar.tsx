@@ -11,7 +11,9 @@ function UsageBar({ usage }: { usage: UsageOut }) {
       <div className="usage-bar">
         <div
           className={percent >= 90 ? 'over' : ''}
-          style={{ width: `${percent}%` }}
+          style={{
+            width: usage.month_used > 0 ? `max(2px, ${percent}%)` : 0,
+          }}
         />
       </div>
       <span>
