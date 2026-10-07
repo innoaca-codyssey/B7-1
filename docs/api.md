@@ -1,5 +1,7 @@
 # API 명세
 
+요청과 응답 예시는 이 문서에, 요청과 응답 스키마는 Swagger UI(https://chat.codyssey.run/api/docs)와 ReDoc(https://chat.codyssey.run/api/redoc)에 있습니다.
+
 모든 API는 `/api`로 시작하며 요청과 응답 본문은 JSON입니다. 로그인하면 `access_token` 쿠키(HttpOnly, SameSite=Lax)가 발급되고, 인증이 필요한 API는 이 쿠키로 사용자를 확인합니다. 시각은 UTC 기준 ISO 8601 문자열입니다.
 
 아래 응답 예시는 curl로 요청해 받은 출력입니다. 채팅 성공 응답과 일별 사용량은 운영 서버(https://chat.codyssey.run)에서, 나머지는 로컬 서버에서 받았습니다. AI 실패 응답은 `AI_BASE_URL`을 오류를 반환하는 서버로 바꿔 확인했습니다.

@@ -4,6 +4,8 @@
 
 서비스 주소: https://chat.codyssey.run
 
+API 문서: https://chat.codyssey.run/api/docs (Swagger UI), https://chat.codyssey.run/api/redoc (ReDoc)
+
 ## 프로젝트 개요
 
 - 문제 정의: 프로그래밍을 공부하다 생긴 질문을 바로 물어볼 곳이 필요하고, 물어본 내용을 나중에 다시 찾아볼 수 있어야 합니다.
@@ -166,7 +168,7 @@ erDiagram
 
 ## API
 
-요청과 응답 예시는 [docs/api.md](docs/api.md)에 정리했습니다. 모든 API는 `/api`로 시작하며, 로그인이 필요한 API는 `access_token` 쿠키로 사용자를 확인합니다.
+요청과 응답 예시는 [docs/api.md](docs/api.md)에, 요청과 응답 스키마는 Swagger UI(https://chat.codyssey.run/api/docs)와 ReDoc(https://chat.codyssey.run/api/redoc)에 있습니다. Swagger UI에서 `POST /api/auth/login`을 실행하면 이후 요청을 로그인 상태로 시험할 수 있습니다. 모든 API는 `/api`로 시작하며, 로그인이 필요한 API는 `access_token` 쿠키로 사용자를 확인합니다.
 
 | 메서드 | 경로 | 설명 | 권한 |
 |---|---|---|---|
