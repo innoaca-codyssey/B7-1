@@ -48,7 +48,8 @@
 | 400 | `SELF_MODIFY` | 관리자가 자기 계정을 비활성화하거나 권한을 낮춤 |
 | 400 | `DEFAULT_MODEL_REQUIRED` | 기본 모델을 비활성화하거나 기본 지정을 해제함 |
 | 400 | `CODE_EXPIRED` | 인증 코드 유효 시간(10분) 경과 |
-| 400 | `INVALID_CODE` | 인증 코드 불일치, 5회 이상 실패, 인증 대상 없음 |
+| 400 | `INVALID_CODE` | 인증 코드 불일치, 인증 대상 없음 |
+| 400 | `TOO_MANY_ATTEMPTS` | 인증 코드를 5회 틀린 뒤 다시 확인 요청 |
 | 401 | `UNAUTHORIZED` | 로그인 쿠키가 없거나 유효하지 않음 |
 | 401 | `INVALID_CREDENTIALS` | 아이디 또는 비밀번호 불일치 |
 | 403 | `USER_DISABLED` | 비활성화된 계정 |
@@ -89,7 +90,7 @@ HTTP 422
 
 ## 인증
 
-회원가입 필드는 `username`(영문 소문자, 숫자, 밑줄 3~30자), `password`(8~72자, 72바이트 이하), `name`(앞뒤 공백 제거 후 1~30자), `email`입니다. 이메일은 소문자로 저장되며, 응답에서는 `name`이 `display_name`으로 반환됩니다. 가입하면 6자리 인증 코드를 이메일로 발송하고, 인증 전에는 `email_verified_at`이 `null`입니다.
+회원가입 필드는 `username`(영문 소문자, 숫자, 밑줄 3~30자), `password`(8~72자, 72바이트 이하), `name`(앞뒤 공백 제거 후 1~30자), `email`입니다. 이메일은 소문자로 저장됩니다. 가입하면 6자리 인증 코드를 이메일로 발송하고, 인증 전에는 `email_verified_at`이 `null`입니다.
 
 ```
 POST /api/auth/signup {"username":"alice","password":"password1","name":"앨리스","email":"alice@example.com"}
@@ -97,13 +98,13 @@ HTTP 201
 {
     "id": 2,
     "username": "alice",
-    "display_name": "앨리스",
+    "name": "앨리스",
     "email": "alice@example.com",
     "email_verified_at": null,
     "role": "user",
     "is_active": true,
     "token_limit": 100000,
-    "created_at": "2026-10-07T08:59:46.644802Z"
+    "created_at": "2026-10-07T09:07:48.700329Z"
 }
 ```
 
@@ -131,7 +132,7 @@ HTTP 403
 }
 ```
 
-`/api/auth/verify-email`은 `username`이나 `email` 중 하나와 `code`를 받습니다. 코드는 10분 동안 유효하며, 5회 이상 틀리면 재발송 전까지 `INVALID_CODE`로 응답합니다.
+`/api/auth/verify-email`은 `username`이나 `email` 중 하나와 `code`를 받습니다. 코드는 10분 동안 유효합니다.
 
 ```
 POST /api/auth/verify-email {"username":"alice","code":"000000"}
@@ -140,6 +141,19 @@ HTTP 400
     "detail": {
         "code": "INVALID_CODE",
         "message": "인증 코드가 올바르지 않습니다."
+    }
+}
+```
+
+5회 틀린 뒤에는 올바른 코드를 보내도 `TOO_MANY_ATTEMPTS`로 응답하며, 코드를 다시 요청해야 합니다.
+
+```
+POST /api/auth/verify-email {"username":"alice","code":"482913"}
+HTTP 400
+{
+    "detail": {
+        "code": "TOO_MANY_ATTEMPTS",
+        "message": "인증 시도 횟수를 초과했습니다. 코드를 다시 요청해 주세요."
     }
 }
 ```
@@ -161,13 +175,13 @@ HTTP 200
 {
     "id": 2,
     "username": "alice",
-    "display_name": "앨리스",
+    "name": "앨리스",
     "email": "alice@example.com",
-    "email_verified_at": "2026-10-07T08:59:47.566223Z",
+    "email_verified_at": "2026-10-07T09:07:49.620976Z",
     "role": "user",
     "is_active": true,
     "token_limit": 100000,
-    "created_at": "2026-10-07T08:59:46.644802Z"
+    "created_at": "2026-10-07T09:07:48.700329Z"
 }
 ```
 
@@ -571,26 +585,26 @@ HTTP 200
     {
         "id": 1,
         "username": "admin",
-        "display_name": "admin",
+        "name": "admin",
         "email": null,
-        "email_verified_at": "2026-10-07T08:59:28.344407Z",
+        "email_verified_at": "2026-10-07T09:07:42.254750Z",
         "role": "admin",
         "is_active": true,
         "token_limit": 100000,
-        "created_at": "2026-10-07T08:59:28.155711Z",
+        "created_at": "2026-10-07T09:07:42.085745Z",
         "month_used": 0,
         "session_count": 0
     },
     {
         "id": 2,
         "username": "alice",
-        "display_name": "앨리스",
+        "name": "앨리스",
         "email": "alice@example.com",
-        "email_verified_at": "2026-10-07T08:59:47.566223Z",
+        "email_verified_at": "2026-10-07T09:07:49.620976Z",
         "role": "user",
         "is_active": true,
         "token_limit": 100000,
-        "created_at": "2026-10-07T08:59:46.644802Z",
+        "created_at": "2026-10-07T09:07:48.700329Z",
         "month_used": 0,
         "session_count": 1
     }
@@ -603,13 +617,13 @@ HTTP 200
 {
     "id": 2,
     "username": "alice",
-    "display_name": "앨리스",
+    "name": "앨리스",
     "email": "alice@example.com",
-    "email_verified_at": "2026-10-07T08:59:47.566223Z",
+    "email_verified_at": "2026-10-07T09:07:49.620976Z",
     "role": "user",
     "is_active": true,
     "token_limit": 50000,
-    "created_at": "2026-10-07T08:59:46.644802Z",
+    "created_at": "2026-10-07T09:07:48.700329Z",
     "month_used": 0,
     "session_count": 1
 }
@@ -626,7 +640,7 @@ HTTP 400
 }
 ```
 
-`/api/admin/chats`는 `/api/me/chats`와 같은 형식에 `username`과 `display_name`을 더해 반환하며, `user_id`를 지정하면 해당 사용자의 기록만 조회합니다.
+`/api/admin/chats`는 `/api/me/chats`와 같은 형식에 `username`과 `name`을 더해 반환하며, `user_id`를 지정하면 해당 사용자의 기록만 조회합니다.
 
 ```
 GET /api/admin/chats?user_id=2&limit=1
@@ -643,9 +657,9 @@ HTTP 200
             "error_code": "AI_ERROR",
             "model_code": "gpt-5-mini",
             "billed_tokens": 0,
-            "created_at": "2026-10-07T08:59:47.862001Z",
+            "created_at": "2026-10-07T09:07:49.912091Z",
             "username": "alice",
-            "display_name": "앨리스"
+            "name": "앨리스"
         }
     ],
     "total": 1
