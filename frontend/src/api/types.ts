@@ -57,6 +57,11 @@ export type ChatLogPage = {
   total: number
 }
 
+export type AdminChatLogPage = {
+  items: (ChatLogItem & { username: string })[]
+  total: number
+}
+
 export type UsageOut = {
   month_used: number
   token_limit: number
