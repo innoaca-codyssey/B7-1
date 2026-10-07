@@ -44,6 +44,12 @@ AI 호출이 실패하거나 시간이 초과되면 오류 코드와 안내 문�
 
 ![오류 안내](docs/images/chat-error.png)
 
+좁은 화면에서는 대화 목록이 상단의 대화 목록 버튼으로 여는 패널로 바뀝니다.
+
+![좁은 화면 대화](docs/images/mobile-chat.png)
+
+![좁은 화면 대화 목록](docs/images/mobile-sidebar.png)
+
 ### 내 대화 기록
 
 ![내 대화 기록](docs/images/my-logs.png)
