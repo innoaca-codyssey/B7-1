@@ -41,9 +41,11 @@ function ChatLogTable({ items, showUser = false, onRowClick }: Props) {
               {showUser && <td>{item.username}</td>}
               <td>{item.session_title}</td>
               <td>{summary(item.question, 40)}</td>
-              <td>{summary(item.answer, 60)}</td>
+              <td>
+                {item.answer === null ? '응답 없음' : summary(item.answer, 60)}
+              </td>
               <td className={item.status === 'error' ? 'error' : ''}>
-                {item.status === 'error' ? item.error_code : '정상'}
+                {item.status === 'error' ? (item.error_code ?? '오류') : '정상'}
               </td>
               <td className="nowrap">{item.model_code}</td>
               <td>{item.billed_tokens.toLocaleString()}</td>
