@@ -30,6 +30,8 @@
 
 회원가입 후 입력한 이메일로 6자리 인증 코드가 발송됩니다. 인증을 마치기 전에는 로그인할 수 없습니다.
 
+![이메일 인증](docs/images/verify-email.png)
+
 ### 채팅
 
 ![채팅](docs/images/chat-view.png)
@@ -155,6 +157,31 @@ erDiagram
 - `ai_models`는 선택 가능한 모델 목록입니다. `chat_sessions.model_code`와 `messages.model_code`는 `ai_models.code` 값을 저장하지만 외래 키는 두지 않았습니다. 관리자가 모델을 비활성화해도 지난 대화 기록은 그대로 남아야 하기 때문입니다.
 - 이메일 인증 코드는 원문 대신 sha256 해시로 저장합니다. 코드는 10분 동안 유효하고, 5회 틀리면 무효가 됩니다. 재발송하면 이전 코드는 삭제됩니다.
 - 이미 운영 중인 DB에는 API 시작 시 `display_name`, `email`, `email_verified_at` 컬럼을 추가합니다. 기존 사용자는 이메일 인증을 마친 상태로 처리하며, 컬럼이 이미 있으면 테이블을 변경하지 않습니다.
+
+## API
+
+요청과 응답 예시는 [docs/api.md](docs/api.md)에 정리했습니다. 모든 API는 `/api`로 시작하며, 로그인이 필요한 API는 `access_token` 쿠키로 사용자를 확인합니다.
+
+| 메서드 | 경로 | 설명 | 권한 |
+|---|---|---|---|
+| POST | `/api/auth/signup` | 회원가입, 인증 코드 발송 | |
+| POST | `/api/auth/verify-email` | 이메일 인증 코드 확인 | |
+| POST | `/api/auth/resend-code` | 인증 코드 재발송 | |
+| POST | `/api/auth/login` | 로그인, 쿠키 발급 | |
+| POST | `/api/auth/logout` | 로그아웃, 쿠키 삭제 | |
+| GET | `/api/auth/me` | 내 정보 | 로그인 |
+| GET, POST | `/api/sessions` | 대화 목록, 새 대화 | 로그인 |
+| PATCH, DELETE | `/api/sessions/{session_id}` | 대화 제목, 모델, 프리셋 변경과 삭제 | 로그인 |
+| GET | `/api/sessions/{session_id}/messages` | 대화의 메시지 목록 | 로그인 |
+| GET | `/api/models` | 사용 가능한 모델 목록 | |
+| GET | `/api/presets` | 프리셋 목록 | |
+| POST | `/api/chat` | 질문 전송, AI 답변 | 로그인 |
+| GET | `/api/me/usage` | 이번 달 토큰 사용량 | 로그인 |
+| GET | `/api/me/chats` | 내 대화 기록 | 로그인 |
+| GET, PATCH | `/api/admin/users`, `/api/admin/users/{user_id}` | 사용자 목록, 역할, 상태, 한도 변경 | 관리자 |
+| GET | `/api/admin/chats` | 전체 사용자 대화 로그 | 관리자 |
+| GET, PATCH | `/api/admin/models`, `/api/admin/models/{code}` | 모델 목록, 활성 여부, 기본 모델, 배율 변경 | 관리자 |
+| GET | `/api/admin/usage` | 일별 모델 사용량 | 관리자 |
 
 ## 대화 로그 저장과 조회
 
