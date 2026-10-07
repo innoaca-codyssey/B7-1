@@ -199,6 +199,38 @@ erDiagram
 docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < scripts/check_logs.sql
 ```
 
+로컬 실행 예시입니다. 관리자 계정으로 질문 3개를 보낸 뒤 실행했습니다. 세 번째 질문 "방금 내가 뭘 물어봤지?"는 첫 질문과 같은 대화에서 보냈고, 이전 질문을 문맥으로 받아 답했습니다.
+
+```
+ username |                 session_title                  |                    question                    |                                                                                 answer                                                                                 | status | error_code |          created_at           
+----------+------------------------------------------------+------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------+------------+-------------------------------
+ admin    | 파이썬 리스트와 튜플 차이를 한 문장으로 알려줘 | 방금 내가 뭘 물어봤지?                         | 방금 "파이썬 리스트와 튜플 차이를 한 문장으로 알려줘"라고 물어보셨어요.                                                                                                | ok     |            | 2026-10-07 09:13:21.057407+00
+ admin    | SQL JOIN 종류를 한 줄씩 설명해줘               | SQL JOIN 종류를 한 줄씩 설명해줘               | 먼저 간단히: JOIN은 둘 이상의 테이블을 특정 조건으로 연결해 관련된 행들을 함께 조회하는 연산이야.                                                                     +| ok     |            | 2026-10-07 09:13:12.272897+00
+          |                                                |                                                |                                                                                                                                                                       +|        |            | 
+          |                                                |                                                | - INNER JOIN: 양쪽 테이블에서 조건에 맞는 행들만 교집합처럼 반환한다.                                                                                                 +|        |            | 
+          |                                                |                                                | - LEFT (LEFT OUTER) JOIN: 왼쪽 테이블의 모든 행과, 조건에 맞는 오른쪽 행을 매칭하고 없으면 NULL로 채운다.                                                             +|        |            | 
+          |                                                |                                                | - RIGHT (RIGHT OUTER) JOIN: 오른쪽 테이블의 모든 행과, 조건에 맞는 왼쪽 행을 매칭하고 없으면 NULL로 채운다.                                                           +|        |            | 
+          |                                                |                                                | - FULL (FULL OUTER) JOIN: 양쪽 테이블의 모든 행을 포함하되, 조건에 맞으면 합치고 아니면 상대편 컬럼을 NULL로 채운다.                                                  +|        |            | 
+          |                                                |                                                | - CROSS JOIN: 조건 없이 두 테이블의 모든 조합(카티션 곱)을 생성한다.                                                                                                  +|        |            | 
+          |                                                |                                                | - SELF JOIN: 같은 테이블을 서로 다른 별칭으로 사용해 한 테이블의 행들끼리 비교하거나 연결할 때 쓴다.                                                                  +|        |            | 
+          |                                                |                                                | - NATURAL JOIN: 동일한 이름의 컬럼들을 자동으로 기준으로 하여 매칭하는 JOIN(주의: 예상치 못한 컬럼 매칭 위험 있음).                                                   +|        |            | 
+          |                                                |                                                | - SEMI JOIN (구현적 개념): 왼쪽 테이블의 행 중 오른쪽 테이블에 매칭이 존재하는 행만 반환(예: WHERE EXISTS) — 일부 DB엔 키워드로 없음.                                 +|        |            | 
+          |                                                |                                                | - ANTI JOIN (구현적 개념): 왼쪽 테이블의 행 중 오른쪽 테이블에 매칭이 없는 행만 반환(예: WHERE NOT EXISTS) — 일부 DB엔 키워드로 없음.                                 +|        |            | 
+          |                                                |                                                |                                                                                                                                                                       +|        |            | 
+          |                                                |                                                | 원하면 각 JOIN별로 짧은 SQL 예제와 시각적인 행 매칭 그림도 보여줄게. 어느 JOIN부터 예제를 보고 싶어?                                                                   |        |            | 
+ admin    | 파이썬 리스트와 튜플 차이를 한 문장으로 알려줘 | 파이썬 리스트와 튜플 차이를 한 문장으로 알려줘 | 리스트는 대괄호로 만들고 요소를 변경할 수 있는(mutable) 순서 있는 컬렉션인 반면, 튜플은 소괄호로 만들고 생성 후 요소를 바꿀 수 없는(immutable) 순서 있는 컬렉션입니다.+| ok     |            | 2026-10-07 09:13:06.452356+00
+          |                                                |                                                |                                                                                                                                                                       +|        |            | 
+          |                                                |                                                | 간단히 정리하면:                                                                                                                                                      +|        |            | 
+          |                                                |                                                | - 리스트: [] 사용, a = [1,2,3]; a[0] = 10  # 가능                                                                                                                     +|        |            | 
+          |                                                |                                                | - 튜플: () 사용, b = (1,2,3); b[0] = 10  # TypeError 발생                                                                                                              |        |            | 
+(3 rows)
+
+ username | questions | errors | tokens | billed_tokens 
+----------+-----------+--------+--------+---------------
+ admin    |         3 |      0 |   2044 |          1022
+(1 row)
+```
+
 ### API로 확인하기
 
 로그인하면 받은 `access_token` 쿠키로 내 대화 기록을 조회합니다. `limit`(1~100, 기본 50)과 `offset`으로 페이지를 나눕니다.
@@ -206,7 +238,41 @@ docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"' < s
 ```bash
 curl -s -c cookies.txt -H 'Content-Type: application/json' \
   -d '{"username":"<아이디>","password":"<비밀번호>"}' https://chat.codyssey.run/api/auth/login
-curl -s -b cookies.txt 'https://chat.codyssey.run/api/me/chats?limit=5'
+curl -s -b cookies.txt 'https://chat.codyssey.run/api/me/chats?limit=2'
+```
+
+운영 서비스의 실제 응답입니다. 긴 답변은 앞부분만 남겼습니다.
+
+```json
+{
+    "items": [
+        {
+            "id": 13,
+            "session_id": 6,
+            "session_title": "너 얼마나 똑똑해?",
+            "question": "너 얼마나 똑똑해?",
+            "answer": "좋은 질문이에요 — “똑똑함”은 여러 면에서 다르게 측정할 수 있어서 한 문장으로 딱 말하긴 어렵습니다. (생략)",
+            "status": "ok",
+            "error_code": null,
+            "model_code": "gpt-5-mini",
+            "billed_tokens": 640,
+            "created_at": "2026-10-07T08:51:30.372179Z"
+        },
+        {
+            "id": 11,
+            "session_id": 5,
+            "session_title": "안녕 너 이름이 뭐야",
+            "question": "이제 니 이름이 뭐라고?",
+            "answer": "지금은 jev예요. 편하게 그렇게 불러줘도 돼요. 다른 이름으로 바꾸고 싶으면 말해줘.",
+            "status": "ok",
+            "error_code": null,
+            "model_code": "gpt-5-mini",
+            "billed_tokens": 238,
+            "created_at": "2026-10-07T08:50:50.261561Z"
+        }
+    ],
+    "total": 7
+}
 ```
 
 관리자 계정은 전체 사용자의 대화를 조회할 수 있고, `user_id`로 특정 사용자만 조회할 수 있습니다. 응답 항목에는 `username`과 `display_name`이 추가됩니다.
