@@ -17,7 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - env:
+      - name: SSH 키 준비
+        env:
           CD_SSH_KEY: ${{ secrets.CD_SSH_KEY }}
           CD_KNOWN_HOSTS: ${{ secrets.CD_KNOWN_HOSTS }}
         run: |
@@ -25,8 +26,9 @@ jobs:
           umask 077
           printf '%s\n' "$CD_SSH_KEY" > ~/.ssh/deploy_key
           printf '%s\n' "$CD_KNOWN_HOSTS" > ~/.ssh/known_hosts
-      - env:
+      - name: 배포 스크립트 실행
+        env:
           CD_HOST: ${{ secrets.CD_HOST }}
           CD_PORT: ${{ secrets.CD_PORT }}
           CD_USER: ${{ secrets.CD_USER }}
-        run: ssh -i ~/.ssh/deploy_key -p "$CD_PORT" -o StrictHostKeyChecking=yes "$CD_USER@$CD_HOST"
+        run: ssh -T -i ~/.ssh/deploy_key -p "$CD_PORT" -o StrictHostKeyChecking=yes "$CD_USER@$CD_HOST"
