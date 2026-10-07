@@ -6,6 +6,7 @@ from fastapi import FastAPI, Request
 from app import models  # noqa: F401
 from app.database import Base, engine
 from app.logging_config import log_event, setup_logging
+from app.routers import auth
 
 setup_logging()
 
@@ -17,6 +18,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="B7-1 Chatbot API", lifespan=lifespan)
+app.include_router(auth.router)
 
 
 @app.middleware("http")
