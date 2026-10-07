@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react'
-import { Link, Navigate, useLocation } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { ApiError } from '../api/client.ts'
+import { errorMessage } from '../api/errors.ts'
 import { useAuth } from '../auth/AuthContext.ts'
 
 function LoginPage() {
   const { user, login } = useAuth()
+  const navigate = useNavigate()
   const notice = (useLocation().state as { notice?: string } | null)?.notice
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -22,7 +24,11 @@ function LoginPage() {
     try {
       await login(username, password)
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : '로그인에 실패했습니다.')
+      if (err instanceof ApiError && err.code === 'EMAIL_NOT_VERIFIED') {
+        navigate(`/verify?username=${encodeURIComponent(username)}`)
+        return
+      }
+      setError(errorMessage(err, '로그인에 실패했습니다.'))
     } finally {
       setSubmitting(false)
     }
