@@ -542,8 +542,20 @@ button.danger:hover:not(:disabled) {
   background: #f7f8fb;
 }
 
+.logs th,
 .logs .nowrap {
   white-space: nowrap;
+}
+
+.logs .ellipsis {
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--color-muted);
 }
 
 .logs input,
