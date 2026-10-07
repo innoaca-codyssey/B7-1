@@ -11,7 +11,9 @@ from app.services.quota import month_start_kst
 
 @pytest.fixture
 def user(client, db):
-    client.post("/api/auth/signup", json={"username": "alice", "password": "password1"})
+    client.post(
+        "/api/auth/signup", json={"username": "alice", "name": "사용자", "password": "password1"}
+    )
     client.post("/api/auth/login", json={"username": "alice", "password": "password1"})
     return db.query(User).filter_by(username="alice").one()
 

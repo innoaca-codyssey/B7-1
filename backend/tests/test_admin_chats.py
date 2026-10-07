@@ -47,6 +47,7 @@ def test_admin_chats_all_and_filter(client, db, admin, caplog):
     body = client.get("/api/admin/chats", params={"user_id": alice.id}).json()
     assert body["total"] == 1
     assert body["items"][0]["username"] == "alice"
+    assert body["items"][0]["display_name"] == "alice"
 
     res = client.get("/api/admin/chats", params={"limit": 1, "offset": 1})
     assert [i["username"] for i in res.json()["items"]] == ["alice"]

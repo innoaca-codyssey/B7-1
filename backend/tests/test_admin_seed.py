@@ -21,6 +21,7 @@ def test_create_admin_on_startup(monkeypatch, db):
 
     admin = users.get_by_username(db, "admin")
     assert admin.role == "admin"
+    assert admin.display_name == "admin"
     assert verify_password("adminpass1", admin.password_hash)
 
 

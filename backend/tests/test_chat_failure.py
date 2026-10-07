@@ -11,7 +11,9 @@ from app.services.ai_client import AIError, AIResult
 
 @pytest.fixture
 def login(client):
-    client.post("/api/auth/signup", json={"username": "alice", "password": "password1"})
+    client.post(
+        "/api/auth/signup", json={"username": "alice", "name": "사용자", "password": "password1"}
+    )
     client.post("/api/auth/login", json={"username": "alice", "password": "password1"})
 
 

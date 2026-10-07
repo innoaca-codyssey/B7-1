@@ -17,7 +17,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 @router.post("/signup", response_model=UserOut, status_code=201)
 def signup(body: SignupRequest, db: Annotated[Session, Depends(get_db)]):
     try:
-        return users.create(db, body.username, hash_password(body.password))
+        return users.create(db, body.username, hash_password(body.password), display_name=body.name)
     except users.UsernameTakenError:
         raise HTTPException(
             status_code=409,

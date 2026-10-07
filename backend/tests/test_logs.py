@@ -23,7 +23,9 @@ def add_pair(db, chat_session, question, answer=None, **answer_fields):
 
 
 def login(client, username):
-    client.post("/api/auth/signup", json={"username": username, "password": "password1"})
+    client.post(
+        "/api/auth/signup", json={"username": username, "name": "사용자", "password": "password1"}
+    )
     return client.post("/api/auth/login", json={"username": username, "password": "password1"})
 
 

@@ -8,7 +8,9 @@ from app.models import AIModel, ChatSession, Message, User
 
 def signup_login(client, username):
     client.cookies.clear()
-    client.post("/api/auth/signup", json={"username": username, "password": "password1"})
+    client.post(
+        "/api/auth/signup", json={"username": username, "name": "사용자", "password": "password1"}
+    )
     client.post("/api/auth/login", json={"username": username, "password": "password1"})
 
 

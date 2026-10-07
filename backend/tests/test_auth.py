@@ -6,33 +6,45 @@ from app.deps import require_admin
 
 
 def test_signup(client):
-    res = client.post("/api/auth/signup", json={"username": "alice", "password": "password1"})
+    res = client.post(
+        "/api/auth/signup", json={"username": "alice", "name": " 앨리스 ", "password": "password1"}
+    )
     assert res.status_code == 201
     body = res.json()
     assert body["username"] == "alice"
+    assert body["display_name"] == "앨리스"
     assert body["role"] == "user"
     assert "password_hash" not in body
 
 
 def test_signup_duplicate(client):
-    client.post("/api/auth/signup", json={"username": "alice", "password": "password1"})
-    res = client.post("/api/auth/signup", json={"username": "alice", "password": "password2"})
+    client.post(
+        "/api/auth/signup", json={"username": "alice", "name": "사용자", "password": "password1"}
+    )
+    res = client.post(
+        "/api/auth/signup", json={"username": "alice", "name": "사용자", "password": "password2"}
+    )
     assert res.status_code == 409
     assert res.json()["detail"]["code"] == "USERNAME_TAKEN"
 
 
 def test_signup_invalid(client):
     for payload in [
-        {"username": "Alice", "password": "password1"},
-        {"username": "al", "password": "password1"},
-        {"username": "alice", "password": "short"},
-        {"username": "alice", "password": "가" * 25},
+        {"username": "Alice", "name": "앨리스", "password": "password1"},
+        {"username": "al", "name": "앨리스", "password": "password1"},
+        {"username": "alice", "name": "앨리스", "password": "short"},
+        {"username": "alice", "name": "앨리스", "password": "가" * 25},
+        {"username": "alice", "password": "password1"},
+        {"username": "alice", "name": "   ", "password": "password1"},
+        {"username": "alice", "name": "가" * 31, "password": "password1"},
     ]:
         assert client.post("/api/auth/signup", json=payload).status_code == 422
 
 
 def signup_and_login(client, username="alice", password="password1"):
-    client.post("/api/auth/signup", json={"username": username, "password": password})
+    client.post(
+        "/api/auth/signup", json={"username": username, "name": "사용자", "password": password}
+    )
     return client.post("/api/auth/login", json={"username": username, "password": password})
 
 
@@ -47,7 +59,9 @@ def test_login_sets_cookie(client):
 
 
 def test_login_wrong_password(client):
-    client.post("/api/auth/signup", json={"username": "alice", "password": "password1"})
+    client.post(
+        "/api/auth/signup", json={"username": "alice", "name": "사용자", "password": "password1"}
+    )
     res = client.post("/api/auth/login", json={"username": "alice", "password": "wrongpass"})
     assert res.status_code == 401
     assert res.json()["detail"]["code"] == "INVALID_CREDENTIALS"

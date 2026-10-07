@@ -8,7 +8,9 @@ from app.services.ai_client import AIResult
 
 @pytest.fixture
 def login(client):
-    client.post("/api/auth/signup", json={"username": "alice", "password": "password1"})
+    client.post(
+        "/api/auth/signup", json={"username": "alice", "name": "사용자", "password": "password1"}
+    )
     client.post("/api/auth/login", json={"username": "alice", "password": "password1"})
 
 
@@ -103,7 +105,9 @@ def test_chat_unavailable_model(client, login, ai_calls):
 def test_chat_other_users_session(client, login, ai_calls, db):
     session_id = client.post("/api/chat", json={"message": "안녕"}).json()["session_id"]
     client.cookies.clear()
-    client.post("/api/auth/signup", json={"username": "bob", "password": "password1"})
+    client.post(
+        "/api/auth/signup", json={"username": "bob", "name": "사용자", "password": "password1"}
+    )
     client.post("/api/auth/login", json={"username": "bob", "password": "password1"})
 
     res = client.post("/api/chat", json={"session_id": session_id, "message": "안녕"})
