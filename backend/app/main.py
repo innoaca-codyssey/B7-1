@@ -23,8 +23,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="B7-1 Chatbot API", lifespan=lifespan)
 app.include_router(auth.router)
-app.include_router(models_router.router)
 app.include_router(sessions.router)
+app.include_router(models_router.router)
 app.include_router(chat.router)
 
 
