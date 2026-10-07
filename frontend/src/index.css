@@ -117,6 +117,8 @@ main {
 }
 
 .message.error {
+  background: #fff1f0;
+  border-left: 3px solid #c00;
   color: #c00;
 }
 
@@ -137,4 +139,78 @@ main {
   flex: 1;
   resize: none;
   font: inherit;
+}
+
+.chat-input-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 0.85em;
+}
+
+.chat-options {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.usage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85em;
+}
+
+.usage-bar {
+  width: 160px;
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.usage-bar > div {
+  height: 100%;
+  background: #4a7bd8;
+}
+
+.usage-bar > div.over {
+  background: #c00;
+}
+
+.chat-options .usage {
+  margin-left: auto;
+}
+
+.logs {
+  width: 100%;
+  margin: 16px 0;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.logs th,
+.logs td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.logs tbody tr {
+  cursor: pointer;
+}
+
+.logs tbody tr:hover {
+  background: #f6f6f6;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logs .nowrap {
+  white-space: nowrap;
 }

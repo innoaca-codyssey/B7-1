@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.crud import messages, users
 from app.database import get_db
 from app.deps import require_admin
+from app.logging_config import log_event
 from app.models import User
 from app.schemas.admin import AdminUserOut, AdminUserUpdate
 from app.schemas.auth import UserOut
@@ -48,6 +49,7 @@ def update_user(user_id: int, body: AdminUserUpdate, db: Db, admin: Admin):
             },
         )
     users.update(db, user, fields)
+    log_event("admin_user_updated", admin_id=admin.id, user_id=user.id, fields=",".join(fields))
     return to_admin_user(*users.get_with_stats(db, user_id))
 
 

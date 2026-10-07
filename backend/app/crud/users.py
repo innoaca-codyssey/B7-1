@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
@@ -8,16 +7,11 @@ from sqlalchemy.orm import Session
 from app.logging_config import log_event
 from app.models import ChatSession, Message, User
 from app.security import hash_password
-
-KST = timezone(timedelta(hours=9))
+from app.services.quota import month_start_kst
 
 
 class UsernameTakenError(Exception):
     pass
-
-
-def month_start_kst() -> datetime:
-    return datetime.now(KST).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
 
 def get_by_username(db: Session, username: str) -> User | None:

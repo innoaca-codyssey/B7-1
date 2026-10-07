@@ -1,11 +1,18 @@
 export class ApiError extends Error {
   status: number
   code: string
+  sessionId: number | null
 
-  constructor(status: number, code: string, message: string) {
+  constructor(
+    status: number,
+    code: string,
+    message: string,
+    sessionId: number | null = null,
+  ) {
     super(message)
     this.status = status
     this.code = code
+    this.sessionId = sessionId
   }
 }
 
@@ -16,7 +23,12 @@ async function toApiError(res: Response): Promise<ApiError> {
   const body = await res.json().catch(() => null)
   const detail = body?.detail
   if (detail?.code) {
-    return new ApiError(res.status, detail.code, detail.message)
+    return new ApiError(
+      res.status,
+      detail.code,
+      detail.message,
+      detail.session_id ?? null,
+    )
   }
   return new ApiError(
     res.status,
