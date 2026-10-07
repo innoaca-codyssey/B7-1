@@ -14,6 +14,8 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(30), unique=True)
     display_name: Mapped[str] = mapped_column(String(30))
+    email: Mapped[str | None] = mapped_column(String(254), unique=True)
+    email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     password_hash: Mapped[str] = mapped_column(String(255))
     role: Mapped[str] = mapped_column(String(10), default="user")
     is_active: Mapped[bool] = mapped_column(default=True)

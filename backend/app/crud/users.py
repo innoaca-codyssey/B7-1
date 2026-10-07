@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
@@ -14,8 +15,16 @@ class UsernameTakenError(Exception):
     pass
 
 
+class EmailTakenError(Exception):
+    pass
+
+
 def get_by_username(db: Session, username: str) -> User | None:
     return db.scalar(select(User).where(User.username == username))
+
+
+def get_by_email(db: Session, email: str) -> User | None:
+    return db.scalar(select(User).where(User.email == email))
 
 
 def create(
@@ -24,18 +33,24 @@ def create(
     password_hash: str,
     display_name: str | None = None,
     role: str = "user",
+    email: str | None = None,
+    email_verified_at: datetime | None = None,
 ) -> User:
     user = User(
         username=username,
         password_hash=password_hash,
         display_name=display_name or username,
         role=role,
+        email=email,
+        email_verified_at=email_verified_at,
     )
     db.add(user)
     try:
         db.commit()
     except IntegrityError as e:
         db.rollback()
+        if e.orig.diag.constraint_name == "users_email_key":
+            raise EmailTakenError(email) from e
         raise UsernameTakenError(username) from e
     db.refresh(user)
     return user

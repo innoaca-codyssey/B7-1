@@ -1,11 +1,16 @@
 from sqlalchemy import text
 
-from app.database import add_display_name_column, engine
+from app.database import engine, upgrade_users_table
 
 
-def test_add_display_name_column_to_existing_table(db):
+def test_upgrade_users_table_to_existing_table(db):
     with engine.begin() as conn:
-        conn.execute(text("ALTER TABLE users DROP COLUMN display_name"))
+        conn.execute(
+            text(
+                "ALTER TABLE users DROP COLUMN display_name, DROP COLUMN email, "
+                "DROP COLUMN email_verified_at"
+            )
+        )
         conn.execute(
             text(
                 "INSERT INTO users (username, password_hash, role, is_active, token_limit) "
@@ -15,10 +20,13 @@ def test_add_display_name_column_to_existing_table(db):
 
     for _ in range(2):
         with engine.begin() as conn:
-            add_display_name_column(conn)
+            upgrade_users_table(conn)
 
     with engine.connect() as conn:
-        assert conn.scalar(text("SELECT display_name FROM users")) == "alice"
+        row = conn.execute(text("SELECT display_name, email, email_verified_at FROM users")).one()
+        assert row.display_name == "alice"
+        assert row.email is None
+        assert row.email_verified_at is not None
         nullable = conn.scalar(
             text(
                 "SELECT is_nullable FROM information_schema.columns "

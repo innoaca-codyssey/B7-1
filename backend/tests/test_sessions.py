@@ -1,16 +1,14 @@
 import pytest
 
 from app.models import AIModel, Message
+from tests.helpers import register
 
 
 @pytest.fixture
 def login(client):
     def _login(username):
         client.cookies.clear()
-        client.post(
-            "/api/auth/signup",
-            json={"username": username, "name": "사용자", "password": "password1"},
-        )
+        register(client, username)
         res = client.post("/api/auth/login", json={"username": username, "password": "password1"})
         return res.json()
 

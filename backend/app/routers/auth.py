@@ -17,11 +17,22 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 @router.post("/signup", response_model=UserOut, status_code=201)
 def signup(body: SignupRequest, db: Annotated[Session, Depends(get_db)]):
     try:
-        return users.create(db, body.username, hash_password(body.password), display_name=body.name)
+        return users.create(
+            db,
+            body.username,
+            hash_password(body.password),
+            display_name=body.name,
+            email=body.email,
+        )
     except users.UsernameTakenError:
         raise HTTPException(
             status_code=409,
             detail={"code": "USERNAME_TAKEN", "message": "이미 사용 중인 아이디입니다."},
+        ) from None
+    except users.EmailTakenError:
+        raise HTTPException(
+            status_code=409,
+            detail={"code": "EMAIL_TAKEN", "message": "이미 사용 중인 이메일입니다."},
         ) from None
 
 
