@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from sqlalchemy import select
+from sqlalchemy import update as sa_update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
@@ -46,3 +47,25 @@ def get_active(db: Session, code: str | None) -> AIModel | None:
     stmt = select(AIModel).where(AIModel.is_active)
     stmt = stmt.where(AIModel.code == code) if code else stmt.where(AIModel.is_default)
     return db.scalar(stmt)
+
+
+def list_all(db: Session) -> list[AIModel]:
+    return list(db.scalars(select(AIModel).order_by(AIModel.sort_order)))
+
+
+def get_by_code(db: Session, code: str) -> AIModel | None:
+    return db.scalar(select(AIModel).where(AIModel.code == code))
+
+
+def update(db: Session, model: AIModel, fields: dict) -> AIModel:
+    if fields.get("is_default"):
+        db.execute(
+            sa_update(AIModel)
+            .where(AIModel.is_default, AIModel.id != model.id)
+            .values(is_default=False)
+        )
+    for key, value in fields.items():
+        setattr(model, key, value)
+    db.commit()
+    db.refresh(model)
+    return model
