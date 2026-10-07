@@ -1,14 +1,15 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app.crud import users
+from app.crud import messages, users
 from app.database import get_db
 from app.deps import require_admin
 from app.models import User
 from app.schemas.admin import AdminUserOut, AdminUserUpdate
 from app.schemas.auth import UserOut
+from app.schemas.logs import AdminChatLogPage
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -48,3 +49,15 @@ def update_user(user_id: int, body: AdminUserUpdate, db: Db, admin: Admin):
         )
     users.update(db, user, fields)
     return to_admin_user(*users.get_with_stats(db, user_id))
+
+
+@router.get("/chats", response_model=AdminChatLogPage)
+def list_chats(
+    db: Db,
+    admin: Admin,
+    user_id: int | None = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    offset: Annotated[int, Query(ge=0)] = 0,
+):
+    items, total = messages.list_chats(db, limit, offset, user_id=user_id)
+    return {"items": items, "total": total}
