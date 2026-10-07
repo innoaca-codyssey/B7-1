@@ -7,11 +7,12 @@ from app.models import ChatSession, Message, User
 from app.services import ai_client
 from app.services.ai_client import AIResult
 from app.services.quota import month_start_kst
+from tests.helpers import register
 
 
 @pytest.fixture
 def user(client, db):
-    client.post("/api/auth/signup", json={"username": "alice", "password": "password1"})
+    register(client, "alice")
     client.post("/api/auth/login", json={"username": "alice", "password": "password1"})
     return db.query(User).filter_by(username="alice").one()
 

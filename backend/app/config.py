@@ -17,6 +17,12 @@ class Settings(BaseSettings):
     ai_timeout_seconds: float = 30
     context_window: int = 10
 
+    smtp_host: str | None = None
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: SecretStr | None = None
+    mail_from: str | None = None
+
     @field_validator("admin_password")
     @classmethod
     def check_admin_password(cls, v: SecretStr | None) -> SecretStr | None:

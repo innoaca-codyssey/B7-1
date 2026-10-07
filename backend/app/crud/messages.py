@@ -62,6 +62,7 @@ def list_chats(
             question.session_id,
             ChatSession.title.label("session_title"),
             User.username,
+            User.display_name.label("name"),
             question.content.label("question"),
             answer.content.label("answer"),
             case((answer.id.is_(None), "error"), else_=answer.status).label("status"),

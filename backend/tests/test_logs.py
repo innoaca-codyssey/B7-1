@@ -1,5 +1,6 @@
 from app.crud import sessions, users
 from app.models import Message
+from tests.helpers import register
 
 
 def add_pair(db, chat_session, question, answer=None, **answer_fields):
@@ -23,7 +24,7 @@ def add_pair(db, chat_session, question, answer=None, **answer_fields):
 
 
 def login(client, username):
-    client.post("/api/auth/signup", json={"username": username, "password": "password1"})
+    register(client, username)
     return client.post("/api/auth/login", json={"username": username, "password": "password1"})
 
 

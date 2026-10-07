@@ -4,11 +4,12 @@ import pytest
 
 from app.crud import ai_models
 from app.models import AIModel, ChatSession, Message, User
+from tests.helpers import register
 
 
 def signup_login(client, username):
     client.cookies.clear()
-    client.post("/api/auth/signup", json={"username": username, "password": "password1"})
+    register(client, username)
     client.post("/api/auth/login", json={"username": username, "password": "password1"})
 
 

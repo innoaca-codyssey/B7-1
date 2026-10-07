@@ -13,6 +13,9 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(30), unique=True)
+    display_name: Mapped[str] = mapped_column(String(30))
+    email: Mapped[str | None] = mapped_column(String(254), unique=True)
+    email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     password_hash: Mapped[str] = mapped_column(String(255))
     role: Mapped[str] = mapped_column(String(10), default="user")
     is_active: Mapped[bool] = mapped_column(default=True)
@@ -87,3 +90,14 @@ class AIModel(Base):
             postgresql_where=text("is_default"),
         ),
     )
+
+
+class EmailVerification(Base):
+    __tablename__ = "email_verifications"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    code_hash: Mapped[str] = mapped_column(String(64))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    attempts: Mapped[int] = mapped_column(default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
