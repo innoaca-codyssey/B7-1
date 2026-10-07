@@ -5,6 +5,7 @@ import pytest
 from app.crud import sessions, users
 from app.models import Message
 from app.security import hash_password
+from app.services.quota import month_start_kst
 
 
 @pytest.fixture
@@ -28,7 +29,7 @@ def test_admin_users_requires_admin(client, db):
 def test_list_users_with_stats(client, db, admin):
     alice = users.create(db, "alice", "hash")
     chat_session = sessions.create(db, alice.id, "운영체제", "gpt-5-mini", "tutor")
-    last_month = users.month_start_kst() - timedelta(days=1)
+    last_month = month_start_kst() - timedelta(days=1)
     db.add_all(
         [
             Message(
