@@ -45,17 +45,20 @@ def handle_chat(db: Session, user: User, body: ChatRequest, request_id: str) -> 
     if not chat_session:
         chat_session = sessions.create(db, user.id, body.message[:30], model.code, preset)
 
+    session_id, user_id = chat_session.id, user.id
+    model_code, max_tokens, multiplier = model.code, model.max_tokens, model.multiplier
     user_message = save_message(
-        db, session_id=chat_session.id, user_id=user.id, role="user", content=body.message
+        db, session_id=session_id, user_id=user_id, role="user", content=body.message
     )
-    history = messages.list_recent_ok(db, chat_session.id, settings.context_window)
+    history = messages.list_recent_ok(db, session_id, settings.context_window)
     prompt = [{"role": "system", "content": PRESETS[preset].system_prompt}]
     prompt += [{"role": m.role, "content": m.content} for m in history]
+    db.commit()
 
-    log_event("ai_call_start", user_id=user.id, request_id=request_id, model=model.code)
+    log_event("ai_call_start", user_id=user_id, request_id=request_id, model=model_code)
     started = time.monotonic()
     try:
-        result = ai_client.chat(model.code, prompt, model.max_tokens)
+        result = ai_client.chat(model_code, prompt, max_tokens)
     except AIError as e:
         latency_ms = int((time.monotonic() - started) * 1000)
         log_event(
@@ -69,23 +72,23 @@ def handle_chat(db: Session, user: User, body: ChatRequest, request_id: str) -> 
         user_message.error_code = e.code
         save_message(
             db,
-            session_id=chat_session.id,
-            user_id=user.id,
+            session_id=session_id,
+            user_id=user_id,
             role="assistant",
             content=AI_ERROR_MESSAGES[e.code],
             status="error",
             error_code=e.code,
-            model_code=model.code,
+            model_code=model_code,
             latency_ms=latency_ms,
             request_id=request_id,
         )
-        touch_session(db, chat_session, model.code, preset)
+        touch_session(db, chat_session, model_code, preset)
         raise HTTPException(
             status_code=AI_ERROR_STATUS[e.code],
             detail={
                 "code": e.code,
                 "message": AI_ERROR_MESSAGES[e.code],
-                "session_id": chat_session.id,
+                "session_id": session_id,
             },
         ) from e
 
@@ -99,21 +102,21 @@ def handle_chat(db: Session, user: User, body: ChatRequest, request_id: str) -> 
 
     assistant_message = save_message(
         db,
-        session_id=chat_session.id,
-        user_id=user.id,
+        session_id=session_id,
+        user_id=user_id,
         role="assistant",
         content=result.content,
-        model_code=model.code,
+        model_code=model_code,
         input_tokens=result.input_tokens,
         output_tokens=result.output_tokens,
-        billed_tokens=billed_tokens(result.input_tokens, result.output_tokens, model.multiplier),
+        billed_tokens=billed_tokens(result.input_tokens, result.output_tokens, multiplier),
         latency_ms=latency_ms,
         request_id=request_id,
     )
-    touch_session(db, chat_session, model.code, preset)
+    touch_session(db, chat_session, model_code, preset)
 
     return ChatResponse(
-        session_id=chat_session.id,
+        session_id=session_id,
         user_message=user_message,
         assistant_message=assistant_message,
     )
