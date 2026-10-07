@@ -197,11 +197,11 @@ main {
   text-align: left;
 }
 
-.logs tbody tr {
+.logs.clickable tbody tr {
   cursor: pointer;
 }
 
-.logs tbody tr:hover {
+.logs.clickable tbody tr:hover {
   background: #f6f6f6;
 }
 
