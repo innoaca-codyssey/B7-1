@@ -15,6 +15,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - env:
           CD_SSH_KEY: ${{ secrets.CD_SSH_KEY }}
