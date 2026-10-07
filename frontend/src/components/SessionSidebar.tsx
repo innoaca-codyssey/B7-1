@@ -4,6 +4,7 @@ import type { SessionOut } from '../api/types.ts'
 type Props = {
   sessions: SessionOut[]
   selectedId: number | null
+  open: boolean
   onSelect: (id: number) => void
   onCreate: () => void
   onDelete: (id: number) => void
@@ -12,6 +13,7 @@ type Props = {
 function SessionSidebar({
   sessions,
   selectedId,
+  open,
   onSelect,
   onCreate,
   onDelete,
@@ -19,7 +21,7 @@ function SessionSidebar({
   const [confirmingId, setConfirmingId] = useState<number | null>(null)
 
   return (
-    <aside className="sidebar">
+    <aside className={open ? 'sidebar open' : 'sidebar'}>
       <button type="button" className="primary" onClick={onCreate}>
         새 대화
       </button>

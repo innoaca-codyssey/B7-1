@@ -29,6 +29,7 @@ function ChatPage() {
   const [sessionsLoaded, setSessionsLoaded] = useState(false)
   const [error, setError] = useState('')
   const [pending, setPending] = useState<string | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [models, setModels] = useState<ModelOut[]>([])
   const [presets, setPresets] = useState<PresetOut[]>([])
   const [modelCode, setModelCode] = useState<string | null>(null)
@@ -109,6 +110,7 @@ function ChatPage() {
       const session = await api.post<SessionOut>('/sessions', {})
       setSessions((prev) => [session, ...prev])
       setSearchParams({ session: String(session.id) })
+      setSidebarOpen(false)
     } catch (err) {
       setError(errorMessage(err, '새 대화를 만들지 못했습니다.'))
     }
@@ -192,13 +194,34 @@ function ChatPage() {
       <SessionSidebar
         sessions={sessions}
         selectedId={selectedId}
-        onSelect={(id) => setSearchParams({ session: String(id) })}
+        open={sidebarOpen}
+        onSelect={(id) => {
+          setSearchParams({ session: String(id) })
+          setSidebarOpen(false)
+        }}
         onCreate={handleCreate}
         onDelete={handleDelete}
       />
+      {sidebarOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
       <section>
         {error && <p className="alert">{error}</p>}
-        <h2 className="chat-title">{selected ? selected.title : '새 대화'}</h2>
+        <div className="chat-header">
+          <button
+            type="button"
+            className="sidebar-toggle"
+            onClick={() => setSidebarOpen(true)}
+          >
+            대화 목록
+          </button>
+          <h2 className="chat-title">
+            {selected ? selected.title : '새 대화'}
+          </h2>
+        </div>
         <MessageList messages={messages} pending={pending} />
         <div className="composer">
           <div className="chat-options">
