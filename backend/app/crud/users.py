@@ -1,13 +1,21 @@
-from sqlalchemy import select
+from datetime import datetime, timedelta, timezone
+
+from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.models import User
+from app.models import ChatSession, Message, User
 from app.security import hash_password
+
+KST = timezone(timedelta(hours=9))
 
 
 class UsernameTakenError(Exception):
     pass
+
+
+def month_start_kst() -> datetime:
+    return datetime.now(KST).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
 
 def get_by_username(db: Session, username: str) -> User | None:
@@ -37,4 +45,33 @@ def ensure_admin(db: Session, username: str, password: str) -> User:
     if user.role != "admin":
         user.role = "admin"
         db.commit()
+    return user
+
+
+def _with_stats():
+    month_used = (
+        select(func.coalesce(func.sum(Message.billed_tokens), 0))
+        .where(Message.user_id == User.id, Message.created_at >= month_start_kst())
+        .scalar_subquery()
+    )
+    session_count = (
+        select(func.count(ChatSession.id)).where(ChatSession.user_id == User.id).scalar_subquery()
+    )
+    return select(User, month_used.label("month_used"), session_count.label("session_count"))
+
+
+def list_with_stats(db: Session) -> list[tuple[User, int, int]]:
+    return [tuple(row) for row in db.execute(_with_stats().order_by(User.id))]
+
+
+def get_with_stats(db: Session, user_id: int) -> tuple[User, int, int] | None:
+    row = db.execute(_with_stats().where(User.id == user_id)).first()
+    return tuple(row) if row else None
+
+
+def update(db: Session, user: User, fields: dict) -> User:
+    for key, value in fields.items():
+        setattr(user, key, value)
+    db.commit()
+    db.refresh(user)
     return user
