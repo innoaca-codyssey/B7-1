@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from pydantic import SecretStr
 
 from app.config import settings
 from app.crud import users
@@ -8,7 +9,7 @@ from app.security import verify_password
 
 def start_app(monkeypatch, username, password):
     monkeypatch.setattr(settings, "admin_username", username)
-    monkeypatch.setattr(settings, "admin_password", password)
+    monkeypatch.setattr(settings, "admin_password", SecretStr(password) if password else None)
     with TestClient(app):
         pass
 

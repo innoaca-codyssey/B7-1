@@ -20,7 +20,9 @@ async def lifespan(app: FastAPI):
     with SessionLocal() as db:
         ai_models.seed_defaults(db)
         if settings.admin_username and settings.admin_password:
-            users.ensure_admin(db, settings.admin_username, settings.admin_password)
+            users.ensure_admin(
+                db, settings.admin_username, settings.admin_password.get_secret_value()
+            )
     yield
 
 
