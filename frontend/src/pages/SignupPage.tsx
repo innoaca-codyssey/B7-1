@@ -10,6 +10,9 @@ function validate(username: string, password: string) {
   if (password.length < 8 || password.length > 72) {
     return '비밀번호는 8~72자입니다.'
   }
+  if (new TextEncoder().encode(password).length > 72) {
+    return '비밀번호는 72바이트 이하입니다. 한글은 한 글자에 3바이트입니다.'
+  }
   return ''
 }
 
