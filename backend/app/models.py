@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Index, String, Text, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, ForeignKey, Index, String, Text, func, select
+from sqlalchemy.orm import Mapped, column_property, mapped_column
 
 from app.config import settings
 from app.database import Base
@@ -55,3 +55,11 @@ class Message(Base):
         Index("ix_messages_user_id_created_at", "user_id", "created_at"),
         Index("ix_messages_session_id_created_at", "session_id", "created_at"),
     )
+
+
+ChatSession.message_count = column_property(
+    select(func.count(Message.id))
+    .where(Message.session_id == ChatSession.id)
+    .correlate_except(Message)
+    .scalar_subquery()
+)
