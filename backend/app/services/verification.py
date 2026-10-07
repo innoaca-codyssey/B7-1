@@ -39,7 +39,6 @@ def issue_code(db: Session, user: User) -> None:
     verifications.replace(db, user.id, _hash(code), datetime.now(UTC) + CODE_TTL)
     try:
         mailer.send_verification_code(user.email, code)
-        log_event("verification_code_sent", user_id=user.id)
     except Exception as e:
         log_event("verification_code_send_fail", user_id=user.id, error=type(e).__name__)
 
