@@ -19,14 +19,18 @@ function UserRow({
   const [saving, setSaving] = useState(false)
   const limitValue = Number(limit)
   const limitChanged =
+    limit.trim() !== '' &&
     Number.isInteger(limitValue) &&
     limitValue >= 0 &&
     limitValue !== user.token_limit
 
   async function save(patch: UserPatch) {
     setSaving(true)
-    await onSave(patch)
-    setSaving(false)
+    try {
+      await onSave(patch)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -98,10 +102,8 @@ function UsersTab() {
   async function update(id: number, patch: UserPatch) {
     setError('')
     try {
-      const updated = await api.patch<UserOut>(`/admin/users/${id}`, patch)
-      setUsers((prev) =>
-        prev.map((u) => (u.id === id ? { ...u, ...updated } : u)),
-      )
+      const updated = await api.patch<AdminUserOut>(`/admin/users/${id}`, patch)
+      setUsers((prev) => prev.map((u) => (u.id === id ? updated : u)))
     } catch (err) {
       setError(errorMessage(err, '사용자 정보를 변경하지 못했습니다.'))
     }
