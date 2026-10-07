@@ -325,13 +325,27 @@ HTTP 200
 }
 ```
 
-다른 사용자의 대화나 삭제된 대화는 404입니다.
+다른 사용자의 대화나 삭제된 대화는 404입니다. 아래는 새로 만든 대화를 삭제한 예시입니다.
 
 ```
-DELETE /api/sessions/1
+POST /api/sessions {"title":"삭제할 대화"}
+HTTP 201
+{
+    "id": 2,
+    "title": "삭제할 대화",
+    "model_code": "gpt-5-mini",
+    "preset": "tutor",
+    "created_at": "2026-10-07T09:12:02.626675Z",
+    "updated_at": "2026-10-07T09:12:02.626675Z",
+    "message_count": 0
+}
+```
+
+```
+DELETE /api/sessions/2
 HTTP 204
 
-GET /api/sessions/1/messages
+GET /api/sessions/2/messages
 HTTP 404
 {
     "detail": {
