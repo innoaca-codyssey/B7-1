@@ -209,7 +209,11 @@ function ChatPage() {
         />
       )}
       <section>
-        {error && <p className="alert">{error}</p>}
+        {error && (
+          <p className="alert" role="alert">
+            {error}
+          </p>
+        )}
         <div className="chat-header">
           <button
             type="button"
