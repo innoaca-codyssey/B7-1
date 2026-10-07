@@ -722,3 +722,9 @@ button.danger:hover:not(:disabled) {
     padding: var(--space-5);
   }
 }
+
+.auth-form .hint {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
