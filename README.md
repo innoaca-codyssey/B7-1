@@ -398,7 +398,7 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-브라우저에서 `http://localhost:8081`로 접속합니다.
+브라우저에서 `http://localhost:8081`로 접속합니다. API 문서는 `http://localhost:8081/api/docs`(Swagger UI)와 `http://localhost:8081/api/redoc`에서 확인합니다.
 
 ### 환경 변수
 
@@ -447,7 +447,7 @@ npm ci
 npm run dev
 ```
 
-테스트는 `TEST_DATABASE_URL`(기본 `postgresql+psycopg://chatbot:chatbot@localhost:5433/chatbot_test`)의 DB를 사용하며, 테스트마다 테이블을 삭제하고 다시 생성합니다. 백엔드 설정은 실행 위치의 `.env`를 읽으므로 `backend/`에서 실행할 때는 저장소 루트의 `.env`가 적용되지 않습니다. Vite 개발 서버는 `/api` 요청을 `http://localhost:8000`으로 전달합니다.
+테스트는 `TEST_DATABASE_URL`(기본 `postgresql+psycopg://chatbot:chatbot@localhost:5433/chatbot_test`)의 DB를 사용하며, 테스트마다 테이블을 삭제하고 다시 생성합니다. 백엔드 설정은 실행 위치의 `.env`를 읽으므로 `backend/`에서 실행할 때는 저장소 루트의 `.env`가 적용되지 않습니다. Vite 개발 서버(`http://localhost:5173`)는 `/api` 요청을 `http://localhost:8000`으로 전달하므로, 로컬 개발 중 API 문서는 `http://localhost:5173/api/docs`에서 확인합니다.
 
 ## 팀 구성과 역할
 
