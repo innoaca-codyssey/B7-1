@@ -7,7 +7,7 @@ from app.logging_config import log_event
 from app.main import app
 
 
-@app.get("/api/test-request-id")
+@app.get("/api/test-request-id", include_in_schema=False)
 def read_request_id(request: Request):
     return {"request_id": request.state.request_id}
 
