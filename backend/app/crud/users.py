@@ -18,8 +18,19 @@ def get_by_username(db: Session, username: str) -> User | None:
     return db.scalar(select(User).where(User.username == username))
 
 
-def create(db: Session, username: str, password_hash: str, role: str = "user") -> User:
-    user = User(username=username, password_hash=password_hash, role=role)
+def create(
+    db: Session,
+    username: str,
+    password_hash: str,
+    display_name: str | None = None,
+    role: str = "user",
+) -> User:
+    user = User(
+        username=username,
+        password_hash=password_hash,
+        display_name=display_name or username,
+        role=role,
+    )
     db.add(user)
     try:
         db.commit()
@@ -37,7 +48,7 @@ def get(db: Session, user_id: int) -> User | None:
 def ensure_admin(db: Session, username: str, password: str) -> User | None:
     user = get_by_username(db, username)
     if not user:
-        return create(db, username, hash_password(password), role="admin")
+        return create(db, username, hash_password(password), display_name=username, role="admin")
     if user.role != "admin":
         log_event("admin_seed_skipped", level=logging.WARNING, username=username)
         return None

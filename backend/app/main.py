@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request
 from app import models  # noqa: F401
 from app.config import settings
 from app.crud import ai_models, users
-from app.database import Base, SessionLocal, engine
+from app.database import Base, SessionLocal, add_display_name_column, engine
 from app.logging_config import log_event, setup_logging
 from app.routers import admin, admin_models, auth, chat, logs, sessions, usage
 from app.routers import models as models_router
@@ -17,6 +17,8 @@ setup_logging()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(engine)
+    with engine.begin() as conn:
+        add_display_name_column(conn)
     with SessionLocal() as db:
         ai_models.seed_defaults(db)
         if settings.admin_username and settings.admin_password:
