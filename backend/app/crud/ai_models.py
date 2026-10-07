@@ -40,3 +40,9 @@ def seed_defaults(db: Session) -> None:
 
 def list_active(db: Session) -> list[AIModel]:
     return list(db.scalars(select(AIModel).where(AIModel.is_active).order_by(AIModel.sort_order)))
+
+
+def get_active(db: Session, code: str | None) -> AIModel | None:
+    stmt = select(AIModel).where(AIModel.is_active)
+    stmt = stmt.where(AIModel.code == code) if code else stmt.where(AIModel.is_default)
+    return db.scalar(stmt)
