@@ -47,10 +47,10 @@ function ChatInput({ sending, onSend }: Props) {
         disabled={sending}
       />
       <div className="chat-input-side">
-        <span className={length > MAX_LENGTH ? 'error' : ''}>
+        <span className={length > MAX_LENGTH ? 'counter error' : 'counter'}>
           {length}/{MAX_LENGTH}
         </span>
-        <button type="submit" disabled={!canSend}>
+        <button type="submit" className="primary" disabled={!canSend}>
           전송
         </button>
       </div>

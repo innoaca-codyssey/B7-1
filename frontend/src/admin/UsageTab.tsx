@@ -73,7 +73,7 @@ function UsageTab() {
 
   return (
     <>
-      {error && <p className="error">{error}</p>}
+      {error && <p className="alert">{error}</p>}
       <h3>최근 {DAYS}일 모델별 합계</h3>
       <TotalTable title="모델" totals={byModel} />
       <h3>일자별 합계</h3>

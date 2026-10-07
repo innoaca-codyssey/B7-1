@@ -4,7 +4,7 @@ from app.models import User
 
 
 def test_user_defaults(db):
-    db.add(User(username="alice", password_hash="hash"))
+    db.add(User(username="alice", display_name="앨리스", password_hash="hash"))
     db.commit()
 
     user = db.scalar(select(User).where(User.username == "alice"))

@@ -4,11 +4,12 @@ from app.config import settings
 from app.models import ChatSession, Message
 from app.services import ai_client
 from app.services.ai_client import AIResult
+from tests.helpers import register
 
 
 @pytest.fixture
 def login(client):
-    client.post("/api/auth/signup", json={"username": "alice", "password": "password1"})
+    register(client, "alice")
     client.post("/api/auth/login", json={"username": "alice", "password": "password1"})
 
 
@@ -103,7 +104,7 @@ def test_chat_unavailable_model(client, login, ai_calls):
 def test_chat_other_users_session(client, login, ai_calls, db):
     session_id = client.post("/api/chat", json={"message": "안녕"}).json()["session_id"]
     client.cookies.clear()
-    client.post("/api/auth/signup", json={"username": "bob", "password": "password1"})
+    register(client, "bob")
     client.post("/api/auth/login", json={"username": "bob", "password": "password1"})
 
     res = client.post("/api/chat", json={"session_id": session_id, "message": "안녕"})

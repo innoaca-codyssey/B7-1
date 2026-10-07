@@ -49,8 +49,8 @@ function ChatsTab() {
 
   return (
     <>
-      {error && <p className="error">{error}</p>}
-      <label>
+      {error && <p className="alert">{error}</p>}
+      <label className="filter">
         사용자{' '}
         <select
           value={userId}

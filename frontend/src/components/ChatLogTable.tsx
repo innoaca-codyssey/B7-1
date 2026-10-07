@@ -8,11 +8,6 @@ type Props = {
   onRowClick?: (item: Item) => void
 }
 
-function summary(text: string, max: number) {
-  const line = text.replace(/\s+/g, ' ').trim()
-  return line.length > max ? `${line.slice(0, max)}...` : line
-}
-
 function ChatLogTable({ items, showUser = false, onRowClick }: Props) {
   return (
     <>
@@ -21,7 +16,6 @@ function ChatLogTable({ items, showUser = false, onRowClick }: Props) {
           <tr>
             <th>시각</th>
             {showUser && <th>사용자</th>}
-            <th>대화</th>
             <th>질문</th>
             <th>답변</th>
             <th>상태</th>
@@ -39,16 +33,24 @@ function ChatLogTable({ items, showUser = false, onRowClick }: Props) {
                 })}
               </td>
               {showUser && <td>{item.username}</td>}
-              <td>{item.session_title}</td>
-              <td>{summary(item.question, 40)}</td>
-              <td>
-                {item.answer === null ? '응답 없음' : summary(item.answer, 60)}
+              <td
+                className="ellipsis"
+                title={`[${item.session_title}] ${item.question}`}
+              >
+                {item.question}
               </td>
-              <td className={item.status === 'error' ? 'error' : ''}>
-                {item.status === 'error' ? (item.error_code ?? '오류') : '정상'}
+              <td className="ellipsis" title={item.answer ?? undefined}>
+                {item.answer ?? <span className="muted">응답 없음</span>}
+              </td>
+              <td className="nowrap">
+                {item.status === 'error' ? (
+                  <span className="badge off">{item.error_code ?? '오류'}</span>
+                ) : (
+                  <span className="badge ok">정상</span>
+                )}
               </td>
               <td className="nowrap">{item.model_code}</td>
-              <td>{item.billed_tokens.toLocaleString()}</td>
+              <td className="nowrap">{item.billed_tokens.toLocaleString()}</td>
             </tr>
           ))}
         </tbody>

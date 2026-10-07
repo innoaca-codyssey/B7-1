@@ -4,6 +4,7 @@ import type { SessionOut } from '../api/types.ts'
 type Props = {
   sessions: SessionOut[]
   selectedId: number | null
+  open: boolean
   onSelect: (id: number) => void
   onCreate: () => void
   onDelete: (id: number) => void
@@ -12,6 +13,7 @@ type Props = {
 function SessionSidebar({
   sessions,
   selectedId,
+  open,
   onSelect,
   onCreate,
   onDelete,
@@ -19,19 +21,28 @@ function SessionSidebar({
   const [confirmingId, setConfirmingId] = useState<number | null>(null)
 
   return (
-    <aside className="sidebar">
-      <button type="button" onClick={onCreate}>
+    <aside id="session-sidebar" className={open ? 'sidebar open' : 'sidebar'}>
+      <button type="button" className="primary" onClick={onCreate}>
         새 대화
       </button>
       <ul>
         {sessions.map((s) => (
           <li key={s.id} className={s.id === selectedId ? 'selected' : ''}>
-            <button type="button" onClick={() => onSelect(s.id)}>
+            <button
+              type="button"
+              className="title"
+              title={s.title}
+              onClick={() => onSelect(s.id)}
+            >
               {s.title}
             </button>
             {confirmingId === s.id ? (
               <>
-                <button type="button" onClick={() => onDelete(s.id)}>
+                <button
+                  type="button"
+                  className="danger"
+                  onClick={() => onDelete(s.id)}
+                >
                   삭제
                 </button>
                 <button type="button" onClick={() => setConfirmingId(null)}>
@@ -39,14 +50,19 @@ function SessionSidebar({
                 </button>
               </>
             ) : (
-              <button type="button" onClick={() => setConfirmingId(s.id)}>
+              <button
+                type="button"
+                className="icon"
+                aria-label="대화 삭제"
+                onClick={() => setConfirmingId(s.id)}
+              >
                 x
               </button>
             )}
           </li>
         ))}
       </ul>
-      {sessions.length === 0 && <p>대화가 없습니다.</p>}
+      {sessions.length === 0 && <p className="empty">대화가 없습니다.</p>}
     </aside>
   )
 }

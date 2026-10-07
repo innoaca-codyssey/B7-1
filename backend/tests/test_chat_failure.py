@@ -7,11 +7,12 @@ from app.crud import messages
 from app.models import ChatSession, Message
 from app.services import ai_client
 from app.services.ai_client import AIError, AIResult
+from tests.helpers import register
 
 
 @pytest.fixture
 def login(client):
-    client.post("/api/auth/signup", json={"username": "alice", "password": "password1"})
+    register(client, "alice")
     client.post("/api/auth/login", json={"username": "alice", "password": "password1"})
 
 
