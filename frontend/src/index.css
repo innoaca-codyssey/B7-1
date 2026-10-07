@@ -182,3 +182,35 @@ main {
 .chat-options .usage {
   margin-left: auto;
 }
+
+.logs {
+  width: 100%;
+  margin: 16px 0;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.logs th,
+.logs td {
+  padding: 6px 8px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+}
+
+.logs tbody tr {
+  cursor: pointer;
+}
+
+.logs tbody tr:hover {
+  background: #f6f6f6;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logs .nowrap {
+  white-space: nowrap;
+}
