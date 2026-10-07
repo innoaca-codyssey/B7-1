@@ -1,5 +1,5 @@
 import logging
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -8,10 +8,14 @@ from app.models import Message
 from app.security import hash_password
 from app.services.quota import month_start_kst
 
+NOW = datetime.now(UTC)
+
 
 @pytest.fixture
 def admin(client, db):
-    user = users.create(db, "admin", hash_password("adminpass1"), role="admin")
+    user = users.create(
+        db, "admin", hash_password("adminpass1"), role="admin", email_verified_at=NOW
+    )
     client.post("/api/auth/login", json={"username": "admin", "password": "adminpass1"})
     return user
 
@@ -19,7 +23,7 @@ def admin(client, db):
 def test_admin_users_requires_admin(client, db):
     assert client.get("/api/admin/users").status_code == 401
 
-    users.create(db, "alice", hash_password("password1"))
+    users.create(db, "alice", hash_password("password1"), email_verified_at=NOW)
     client.post("/api/auth/login", json={"username": "alice", "password": "password1"})
     res = client.get("/api/admin/users")
     assert res.status_code == 403

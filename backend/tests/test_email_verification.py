@@ -11,7 +11,7 @@ def verify(client, code, **lookup):
 
 
 def test_signup_sends_code_and_verify(client, outbox):
-    register(client, "alice")
+    register(client, "alice", verify=False)
     code = outbox["alice@example.com"]
     assert len(code) == 6 and code.isdigit()
 
@@ -24,13 +24,13 @@ def test_signup_sends_code_and_verify(client, outbox):
 
 
 def test_verify_with_email(client, outbox):
-    register(client, "alice")
+    register(client, "alice", verify=False)
     res = verify(client, outbox["alice@example.com"], email="ALICE@example.com")
     assert res.status_code == 200
 
 
 def test_wrong_code_limit(client, db, outbox):
-    register(client, "alice")
+    register(client, "alice", verify=False)
     code = outbox["alice@example.com"]
     wrong = "000000" if code != "000000" else "111111"
 
@@ -45,7 +45,7 @@ def test_wrong_code_limit(client, db, outbox):
 
 
 def test_expired_code(client, db, outbox):
-    register(client, "alice")
+    register(client, "alice", verify=False)
     user = users.get_by_username(db, "alice")
     verification = verifications.get_latest(db, user.id)
     verification.expires_at = datetime.now(UTC) - timedelta(seconds=1)
@@ -68,7 +68,7 @@ def test_verify_requires_identifier(client):
 
 
 def test_resend_code(client, db, outbox):
-    register(client, "alice")
+    register(client, "alice", verify=False)
     old_code = outbox["alice@example.com"]
     user = users.get_by_username(db, "alice")
     verification = verifications.get_latest(db, user.id)
@@ -97,7 +97,7 @@ def test_resend_same_response_for_unknown(client, outbox):
 
 
 def test_resend_skips_mail_within_interval(client, outbox):
-    register(client, "alice")
+    register(client, "alice", verify=False)
     outbox.clear()
 
     assert client.post("/api/auth/resend-code", json={"username": "alice"}).status_code == 204
@@ -111,7 +111,7 @@ def test_signup_succeeds_when_mail_fails(client, monkeypatch, caplog):
     monkeypatch.setattr(mailer, "send_verification_code", fail)
     caplog.set_level(logging.INFO, logger="app")
 
-    res = register(client, "alice")
+    res = register(client, "alice", verify=False)
     assert res.status_code == 201
     user_id = res.json()["id"]
     assert f"verification_code_send_fail user_id={user_id} error=RuntimeError" in caplog.messages

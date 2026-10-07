@@ -98,6 +98,11 @@ def login(body: LoginRequest, response: Response, db: Annotated[Session, Depends
             status_code=403,
             detail={"code": "USER_DISABLED", "message": "비활성화된 계정입니다."},
         )
+    if not user.email_verified_at:
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "EMAIL_NOT_VERIFIED", "message": "이메일 인증이 필요합니다."},
+        )
     response.set_cookie(
         "access_token",
         create_access_token(user.id),

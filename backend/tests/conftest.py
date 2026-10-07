@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 from app.database import Base, SessionLocal, engine, get_db  # noqa: E402
 from app.main import app  # noqa: E402
 from app.services import mailer, verification  # noqa: E402
+from tests.helpers import OUTBOX  # noqa: E402
 
 
 @pytest.fixture
@@ -37,7 +38,7 @@ def client(db):
 
 @pytest.fixture(autouse=True)
 def outbox(monkeypatch):
-    sent = {}
-    monkeypatch.setattr(mailer, "send_verification_code", lambda to, code: sent.update({to: code}))
+    OUTBOX.clear()
+    monkeypatch.setattr(mailer, "send_verification_code", OUTBOX.__setitem__)
     verification._last_resend.clear()
-    return sent
+    return OUTBOX

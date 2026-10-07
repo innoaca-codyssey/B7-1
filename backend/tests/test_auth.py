@@ -137,3 +137,13 @@ def test_disabled_user_blocked_from_api(client, db):
     for res in [client.get("/api/sessions"), client.get("/api/me/chats")]:
         assert res.status_code == 403
         assert res.json()["detail"]["code"] == "USER_DISABLED"
+
+
+def test_login_requires_verified_email(client):
+    register(client, "alice", verify=False)
+    res = client.post("/api/auth/login", json={"username": "alice", "password": "password1"})
+    assert res.status_code == 403
+    assert res.json()["detail"]["code"] == "EMAIL_NOT_VERIFIED"
+
+    res = client.post("/api/auth/login", json={"username": "alice", "password": "wrongpass"})
+    assert res.status_code == 401

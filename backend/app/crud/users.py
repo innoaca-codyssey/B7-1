@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
@@ -63,7 +63,14 @@ def get(db: Session, user_id: int) -> User | None:
 def ensure_admin(db: Session, username: str, password: str) -> User | None:
     user = get_by_username(db, username)
     if not user:
-        return create(db, username, hash_password(password), display_name=username, role="admin")
+        return create(
+            db,
+            username,
+            hash_password(password),
+            display_name=username,
+            role="admin",
+            email_verified_at=datetime.now(UTC),
+        )
     if user.role != "admin":
         log_event("admin_seed_skipped", level=logging.WARNING, username=username)
         return None
