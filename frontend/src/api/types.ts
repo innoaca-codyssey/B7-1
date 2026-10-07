@@ -71,3 +71,10 @@ export type PresetOut = {
   name: string
   description: string
 }
+
+export type ChatResponse = {
+  session_id: number
+  user_message: MessageOut
+  assistant_message: MessageOut
+  usage: UsageOut
+}

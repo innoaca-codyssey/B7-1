@@ -1,6 +1,7 @@
 from datetime import datetime
+from decimal import Decimal
 
-from sqlalchemy import DateTime, ForeignKey, Index, String, Text, func, select
+from sqlalchemy import DateTime, ForeignKey, Index, Numeric, String, Text, func, select, text
 from sqlalchemy.orm import Mapped, column_property, mapped_column
 
 from app.config import settings
@@ -63,3 +64,26 @@ ChatSession.message_count = column_property(
     .correlate_except(Message)
     .scalar_subquery()
 )
+
+
+class AIModel(Base):
+    __tablename__ = "ai_models"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    code: Mapped[str] = mapped_column(String(50), unique=True)
+    name: Mapped[str] = mapped_column(String(50))
+    provider: Mapped[str] = mapped_column(String(20))
+    multiplier: Mapped[Decimal] = mapped_column(Numeric(4, 2))
+    max_tokens: Mapped[int] = mapped_column(default=4096)
+    is_active: Mapped[bool] = mapped_column(default=True)
+    is_default: Mapped[bool] = mapped_column(default=False)
+    sort_order: Mapped[int] = mapped_column(default=0)
+
+    __table_args__ = (
+        Index(
+            "uq_ai_models_default",
+            "is_default",
+            unique=True,
+            postgresql_where=text("is_default"),
+        ),
+    )
