@@ -30,13 +30,18 @@ async function request<T>(
   path: string,
   body?: unknown,
 ): Promise<T> {
-  const res = await fetch(`/api${path}`, {
-    method,
-    credentials: 'include',
-    headers:
-      body === undefined ? undefined : { 'Content-Type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
+  let res: Response
+  try {
+    res = await fetch(`/api${path}`, {
+      method,
+      credentials: 'include',
+      headers:
+        body === undefined ? undefined : { 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    })
+  } catch {
+    throw new ApiError(0, 'NETWORK_ERROR', '서버에 연결할 수 없습니다.')
+  }
   if (!res.ok) {
     throw await toApiError(res)
   }
