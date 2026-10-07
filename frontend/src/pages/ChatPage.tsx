@@ -14,6 +14,7 @@ function errorMessage(err: unknown, fallback: string) {
 
 function ChatPage() {
   const [sessions, setSessions] = useState<SessionOut[]>([])
+  const [sessionsLoaded, setSessionsLoaded] = useState(false)
   const [error, setError] = useState('')
   const [searchParams, setSearchParams] = useSearchParams()
   const selectedId = Number(searchParams.get('session')) || null
@@ -22,11 +23,20 @@ function ChatPage() {
   useEffect(() => {
     api
       .get<SessionOut[]>('/sessions')
-      .then((list) => setSessions([...list].sort(byUpdatedDesc)))
+      .then((list) => {
+        setSessions([...list].sort(byUpdatedDesc))
+        setSessionsLoaded(true)
+      })
       .catch((err) =>
         setError(errorMessage(err, '대화 목록을 불러오지 못했습니다.')),
       )
   }, [])
+
+  useEffect(() => {
+    if (sessionsLoaded && selectedId !== null && !selected) {
+      setSearchParams({}, { replace: true })
+    }
+  }, [sessionsLoaded, selectedId, selected, setSearchParams])
 
   async function handleCreate() {
     setError('')
