@@ -35,7 +35,16 @@ def update_model(db: Session, code: str, body: ModelUpdate) -> AIModel:
                 "message": "기본 모델은 비활성화할 수 없습니다.",
             },
         )
-    return ai_models.update(db, model, fields)
+    try:
+        return ai_models.update(db, model, fields)
+    except ai_models.DefaultModelConflictError:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "code": "DEFAULT_MODEL_CONFLICT",
+                "message": "기본 모델이 동시에 변경되었습니다. 새로고침 후 다시 시도해 주세요.",
+            },
+        ) from None
 
 
 def usage_by_day(db: Session, days: int) -> list:

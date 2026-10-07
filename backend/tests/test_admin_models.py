@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
+from app.crud import ai_models
 from app.models import AIModel, ChatSession, Message, User
 
 
@@ -129,3 +130,13 @@ def test_usage_by_day(client, db, admin):
         {"date": today, "model_code": "gpt-5-mini", "billed_tokens": 30, "requests": 2},
         {"date": today, "model_code": "gpt-5.5", "billed_tokens": 50, "requests": 1},
     ]
+
+
+def test_default_model_conflict(client, admin, monkeypatch):
+    def conflict(db, model, fields):
+        raise ai_models.DefaultModelConflictError
+
+    monkeypatch.setattr(ai_models, "update", conflict)
+    res = client.patch("/api/admin/models/gpt-5.4", json={"is_default": True})
+    assert res.status_code == 409
+    assert res.json()["detail"]["code"] == "DEFAULT_MODEL_CONFLICT"
