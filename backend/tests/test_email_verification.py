@@ -1,5 +1,6 @@
 import logging
 import threading
+import time
 from datetime import UTC, datetime, timedelta
 
 from app.crud import users, verifications
@@ -149,3 +150,11 @@ def test_concurrent_wrong_codes_respect_limit(client, db, outbox):
     assert results.count("TooManyAttemptsError") == 5
     db.expire_all()
     assert verifications.get_latest(db, user_id).attempts == 5
+
+
+def test_resend_purges_expired_entries(client):
+    old = time.monotonic() - verification.RESEND_INTERVAL_SECONDS
+    verification._last_resend.update({f"email:old{i}@example.com": old for i in range(3)})
+
+    assert client.post("/api/auth/resend-code", json={"username": "nobody"}).status_code == 204
+    assert list(verification._last_resend) == ["username:nobody"]

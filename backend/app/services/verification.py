@@ -68,7 +68,10 @@ def verify_code(db: Session, user: User | None, code: str) -> User:
 
 def resend_code(db: Session, identifier: str, user: User | None) -> None:
     now = time.monotonic()
-    if now - _last_resend.get(identifier, -RESEND_INTERVAL_SECONDS) < RESEND_INTERVAL_SECONDS:
+    for key, requested_at in list(_last_resend.items()):
+        if now - requested_at >= RESEND_INTERVAL_SECONDS:
+            del _last_resend[key]
+    if identifier in _last_resend:
         raise TooManyRequestsError
     _last_resend[identifier] = now
     if not user or user.email_verified_at or not user.email:
