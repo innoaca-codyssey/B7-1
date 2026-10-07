@@ -1,5 +1,7 @@
 import { useState, type KeyboardEvent } from 'react'
 
+const MAX_LENGTH = 4000
+
 type Props = {
   sending: boolean
   onSend: (message: string) => Promise<boolean>
@@ -7,12 +9,14 @@ type Props = {
 
 function ChatInput({ sending, onSend }: Props) {
   const [text, setText] = useState('')
+  const length = [...text.trim()].length
+  const canSend = !sending && length > 0 && length <= MAX_LENGTH
 
   async function submit() {
-    const message = text.trim()
-    if (!message || sending) {
+    if (!canSend) {
       return
     }
+    const message = text.trim()
     setText('')
     if (!(await onSend(message))) {
       setText(text)
@@ -42,9 +46,14 @@ function ChatInput({ sending, onSend }: Props) {
         rows={3}
         disabled={sending}
       />
-      <button type="submit" disabled={sending || !text.trim()}>
-        전송
-      </button>
+      <div className="chat-input-side">
+        <span className={length > MAX_LENGTH ? 'error' : ''}>
+          {length}/{MAX_LENGTH}
+        </span>
+        <button type="submit" disabled={!canSend}>
+          전송
+        </button>
+      </div>
     </form>
   )
 }
