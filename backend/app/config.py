@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     database_url: str = "postgresql+psycopg://chatbot:chatbot@localhost:5432/chatbot"
+    default_token_limit: int = 100000
 
     ai_base_url: str = "https://copa.codyssey.kr/v1"
     ai_api_key: SecretStr = SecretStr("")
