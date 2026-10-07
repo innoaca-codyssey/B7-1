@@ -8,10 +8,12 @@ import type {
   ModelOut,
   PresetOut,
   SessionOut,
+  UsageOut,
 } from '../api/types.ts'
 import ChatInput from '../components/ChatInput.tsx'
 import MessageList from '../components/MessageList.tsx'
 import SessionSidebar from '../components/SessionSidebar.tsx'
+import UsageBar from '../components/UsageBar.tsx'
 
 function byUpdatedDesc(a: SessionOut, b: SessionOut) {
   return Date.parse(b.updated_at) - Date.parse(a.updated_at)
@@ -31,6 +33,7 @@ function ChatPage() {
   const [presets, setPresets] = useState<PresetOut[]>([])
   const [modelCode, setModelCode] = useState<string | null>(null)
   const [presetCode, setPresetCode] = useState<string | null>(null)
+  const [usage, setUsage] = useState<UsageOut | null>(null)
   const model = modelCode ?? models.find((m) => m.is_default)?.code
   const preset = presetCode ?? presets[0]?.code
   const [searchParams, setSearchParams] = useSearchParams()
@@ -66,6 +69,10 @@ function ChatPage() {
       .catch((err) =>
         setError(errorMessage(err, '모델 목록을 불러오지 못했습니다.')),
       )
+    api
+      .get<UsageOut>('/me/usage')
+      .then(setUsage)
+      .catch(() => setUsage(null))
   }, [])
 
   useEffect(() => {
@@ -163,6 +170,7 @@ function ChatPage() {
       setPending(null)
       return savedSessionId !== null
     }
+    setUsage(res.usage)
     setLoaded({
       sessionId: res.session_id,
       messages: [...messages, res.user_message, res.assistant_message],
@@ -213,6 +221,7 @@ function ChatPage() {
               </option>
             ))}
           </select>
+          {usage && <UsageBar usage={usage} />}
         </div>
         <ChatInput sending={pending !== null} onSend={handleSend} />
       </section>
