@@ -51,6 +51,8 @@ def test_my_chats_pairs(client, db):
 
     latest, error, ok = body["items"]
     assert latest["answer"] is None
+    assert latest["status"] == "error"
+    assert latest["error_code"] is None
     assert error["session_title"] == "네트워크"
     assert error["status"] == "error"
     assert error["error_code"] == "AI_TIMEOUT"
