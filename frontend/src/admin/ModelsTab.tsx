@@ -140,6 +140,9 @@ function ModelsTab() {
       setModels(await fetchModels())
     } catch (err) {
       setError(errorMessage(err, '모델 설정을 변경하지 못했습니다.'))
+      fetchModels()
+        .then(setModels)
+        .catch(() => {})
     }
   }
 
