@@ -138,3 +138,11 @@ main {
   resize: none;
   font: inherit;
 }
+
+.chat-input-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-size: 0.85em;
+}
