@@ -1,4 +1,6 @@
-from sqlalchemy import select
+from datetime import datetime
+
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models import Message
@@ -29,3 +31,10 @@ def create(db: Session, **fields) -> Message:
     db.commit()
     db.refresh(message)
     return message
+
+
+def sum_billed_since(db: Session, user_id: int, since: datetime) -> int:
+    stmt = select(func.coalesce(func.sum(Message.billed_tokens), 0)).where(
+        Message.user_id == user_id, Message.created_at >= since
+    )
+    return db.scalar(stmt)
