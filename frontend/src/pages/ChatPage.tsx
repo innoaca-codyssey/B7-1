@@ -197,8 +197,8 @@ function ChatPage() {
         onDelete={handleDelete}
       />
       <section>
-        {error && <p className="error">{error}</p>}
-        <h2>{selected ? selected.title : '새 대화'}</h2>
+        {error && <p className="alert">{error}</p>}
+        <h2 className="chat-title">{selected ? selected.title : '새 대화'}</h2>
         <MessageList messages={messages} pending={pending} />
         <div className="chat-options">
           <select
