@@ -6,6 +6,8 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+psycopg://chatbot:chatbot@localhost:5432/chatbot"
     default_token_limit: int = 100000
+    jwt_secret: str
+    jwt_expire_minutes: int = 1440
 
 
 settings = Settings()
