@@ -148,3 +148,9 @@ main {
   align-items: flex-end;
   font-size: 0.85em;
 }
+
+.chat-options {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}

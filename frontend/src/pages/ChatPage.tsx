@@ -2,7 +2,13 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { api, ApiError } from '../api/client.ts'
 import { errorMessage } from '../api/errors.ts'
-import type { ChatResponse, MessageOut, SessionOut } from '../api/types.ts'
+import type {
+  ChatResponse,
+  MessageOut,
+  ModelOut,
+  PresetOut,
+  SessionOut,
+} from '../api/types.ts'
 import ChatInput from '../components/ChatInput.tsx'
 import MessageList from '../components/MessageList.tsx'
 import SessionSidebar from '../components/SessionSidebar.tsx'
@@ -21,6 +27,12 @@ function ChatPage() {
   const [sessionsLoaded, setSessionsLoaded] = useState(false)
   const [error, setError] = useState('')
   const [pending, setPending] = useState<string | null>(null)
+  const [models, setModels] = useState<ModelOut[]>([])
+  const [presets, setPresets] = useState<PresetOut[]>([])
+  const [modelCode, setModelCode] = useState<string | null>(null)
+  const [presetCode, setPresetCode] = useState<string | null>(null)
+  const model = modelCode ?? models.find((m) => m.is_default)?.code
+  const preset = presetCode ?? presets[0]?.code
   const [searchParams, setSearchParams] = useSearchParams()
   const selectedId = Number(searchParams.get('session')) || null
   const selected = sessions.find((s) => s.id === selectedId)
@@ -39,6 +51,20 @@ function ChatPage() {
       })
       .catch((err) =>
         setError(errorMessage(err, '대화 목록을 불러오지 못했습니다.')),
+      )
+  }, [])
+
+  useEffect(() => {
+    Promise.all([
+      api.get<ModelOut[]>('/models'),
+      api.get<PresetOut[]>('/presets'),
+    ])
+      .then(([modelList, presetList]) => {
+        setModels(modelList)
+        setPresets(presetList)
+      })
+      .catch((err) =>
+        setError(errorMessage(err, '모델 목록을 불러오지 못했습니다.')),
       )
   }, [])
 
@@ -121,6 +147,8 @@ function ChatPage() {
       res = await api.post<ChatResponse>('/chat', {
         session_id: selected?.id,
         message,
+        model_code: model,
+        preset,
       })
     } catch (err) {
       setError(errorMessage(err, '메시지를 보내지 못했습니다.'))
@@ -159,6 +187,28 @@ function ChatPage() {
         {error && <p className="error">{error}</p>}
         <h2>{selected ? selected.title : '새 대화'}</h2>
         <MessageList messages={messages} pending={pending} />
+        <div className="chat-options">
+          <select
+            value={model ?? ''}
+            onChange={(e) => setModelCode(e.target.value)}
+          >
+            {models.map((m) => (
+              <option key={m.code} value={m.code}>
+                {m.name} (x{m.multiplier})
+              </option>
+            ))}
+          </select>
+          <select
+            value={preset ?? ''}
+            onChange={(e) => setPresetCode(e.target.value)}
+          >
+            {presets.map((p) => (
+              <option key={p.code} value={p.code} title={p.description}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
         <ChatInput sending={pending !== null} onSend={handleSend} />
       </section>
     </div>
