@@ -21,7 +21,7 @@ function SessionSidebar({
   const [confirmingId, setConfirmingId] = useState<number | null>(null)
 
   return (
-    <aside className={open ? 'sidebar open' : 'sidebar'}>
+    <aside id="session-sidebar" className={open ? 'sidebar open' : 'sidebar'}>
       <button type="button" className="primary" onClick={onCreate}>
         새 대화
       </button>

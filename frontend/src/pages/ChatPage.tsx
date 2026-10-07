@@ -104,6 +104,19 @@ function ChatPage() {
     }
   }, [loadId])
 
+  useEffect(() => {
+    if (!sidebarOpen) {
+      return
+    }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setSidebarOpen(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [sidebarOpen])
+
   async function handleCreate() {
     setError('')
     try {
@@ -218,6 +231,8 @@ function ChatPage() {
           <button
             type="button"
             className="sidebar-toggle"
+            aria-controls="session-sidebar"
+            aria-expanded={sidebarOpen}
             onClick={() => setSidebarOpen(true)}
           >
             대화 목록
