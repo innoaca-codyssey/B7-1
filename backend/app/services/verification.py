@@ -48,7 +48,7 @@ def issue_code(db: Session, user: User) -> None:
 
 
 def verify_code(db: Session, user: User | None, code: str) -> User:
-    verification = verifications.get_latest(db, user.id) if user else None
+    verification = verifications.get_latest(db, user.id, for_update=True) if user else None
     if not user or user.email_verified_at or not verification:
         raise InvalidCodeError
     if verification.attempts >= MAX_ATTEMPTS:

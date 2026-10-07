@@ -1,8 +1,11 @@
 import logging
+import threading
 from datetime import UTC, datetime, timedelta
 
 from app.crud import users, verifications
-from app.services import mailer
+from app.database import SessionLocal
+from app.models import User
+from app.services import mailer, verification
 from tests.helpers import register
 
 
@@ -115,3 +118,34 @@ def test_signup_succeeds_when_mail_fails(client, monkeypatch, caplog):
     assert res.status_code == 201
     user_id = res.json()["id"]
     assert f"verification_code_send_fail user_id={user_id} error=RuntimeError" in caplog.messages
+
+
+def test_concurrent_wrong_codes_respect_limit(client, db, outbox):
+    register(client, "alice", verify=False)
+    user_id = users.get_by_username(db, "alice").id
+    code = outbox["alice@example.com"]
+    wrong = "000000" if code != "000000" else "111111"
+    barrier = threading.Barrier(10)
+    results = []
+
+    def attempt():
+        session = SessionLocal()
+        try:
+            user = session.get(User, user_id)
+            barrier.wait()
+            verification.verify_code(session, user, wrong)
+        except Exception as e:
+            results.append(type(e).__name__)
+        finally:
+            session.close()
+
+    threads = [threading.Thread(target=attempt) for _ in range(10)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    assert results.count("InvalidCodeError") == 5
+    assert results.count("TooManyAttemptsError") == 5
+    db.expire_all()
+    assert verifications.get_latest(db, user_id).attempts == 5

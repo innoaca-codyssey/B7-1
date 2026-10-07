@@ -15,12 +15,15 @@ def replace(db: Session, user_id: int, code_hash: str, expires_at: datetime) -> 
     return verification
 
 
-def get_latest(db: Session, user_id: int) -> EmailVerification | None:
-    return db.scalar(
+def get_latest(db: Session, user_id: int, for_update: bool = False) -> EmailVerification | None:
+    stmt = (
         select(EmailVerification)
         .where(EmailVerification.user_id == user_id)
         .order_by(EmailVerification.id.desc())
     )
+    if for_update:
+        stmt = stmt.with_for_update()
+    return db.scalar(stmt)
 
 
 def delete_for_user(db: Session, user_id: int) -> None:
