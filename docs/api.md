@@ -6,7 +6,9 @@
 
 | 메서드 | 경로 | 인증 | 설명 |
 |---|---|---|---|
-| POST | `/api/auth/signup` | 없음 | 회원가입 |
+| POST | `/api/auth/signup` | 없음 | 회원가입, 인증 코드 메일 발송 |
+| POST | `/api/auth/verify-email` | 없음 | 이메일 인증 코드 확인 |
+| POST | `/api/auth/resend-code` | 없음 | 인증 코드 재발송 |
 | POST | `/api/auth/login` | 없음 | 로그인, 쿠키 발급 |
 | POST | `/api/auth/logout` | 없음 | 쿠키 삭제 |
 | GET | `/api/auth/me` | 로그인 | 내 정보 |
@@ -45,14 +47,19 @@
 | 400 | `MODEL_UNAVAILABLE` | 없는 모델이나 비활성 모델로 질문 |
 | 400 | `SELF_MODIFY` | 관리자가 자기 계정을 비활성화하거나 권한을 낮춤 |
 | 400 | `DEFAULT_MODEL_REQUIRED` | 기본 모델을 비활성화하거나 기본 지정을 해제함 |
+| 400 | `CODE_EXPIRED` | 인증 코드 유효 시간(10분) 경과 |
+| 400 | `INVALID_CODE` | 인증 코드 불일치, 5회 이상 실패, 인증 대상 없음 |
 | 401 | `UNAUTHORIZED` | 로그인 쿠키가 없거나 유효하지 않음 |
 | 401 | `INVALID_CREDENTIALS` | 아이디 또는 비밀번호 불일치 |
 | 403 | `USER_DISABLED` | 비활성화된 계정 |
+| 403 | `EMAIL_NOT_VERIFIED` | 이메일 인증 전 로그인 |
 | 403 | `FORBIDDEN` | 관리자 API에 일반 사용자가 접근 |
 | 404 | `NOT_FOUND` | 없거나 본인 것이 아닌 대화, 없는 모델 |
 | 409 | `USERNAME_TAKEN` | 이미 사용 중인 아이디로 가입 |
+| 409 | `EMAIL_TAKEN` | 이미 사용 중인 이메일로 가입 |
 | 409 | `DEFAULT_MODEL_CONFLICT` | 여러 관리자가 동시에 기본 모델을 변경 |
 | 429 | `QUOTA_EXCEEDED` | 이번 달 토큰 사용량이 한도 이상 |
+| 429 | `TOO_MANY_REQUESTS` | 같은 아이디나 이메일로 60초 안에 인증 코드 재발송 요청 |
 | 500 | `DB_ERROR` | 메시지 저장 실패(응답에 `session_id` 포함) |
 | 502 | `AI_ERROR` | AI API 오류 응답, 연결 실패, 빈 응답 |
 | 504 | `AI_TIMEOUT` | AI API 응답이 `AI_TIMEOUT_SECONDS` 안에 오지 않음 |
@@ -82,20 +89,107 @@ HTTP 422
 
 ## 인증
 
-아이디는 영문 소문자, 숫자, 밑줄로 3~30자이고 비밀번호는 8~72자(72바이트 이하)입니다.
+회원가입 필드는 `username`(영문 소문자, 숫자, 밑줄 3~30자), `password`(8~72자, 72바이트 이하), `name`(앞뒤 공백 제거 후 1~30자), `email`입니다. 이메일은 소문자로 저장되며, 응답에서는 `name`이 `display_name`으로 반환됩니다. 가입하면 6자리 인증 코드를 이메일로 발송하고, 인증 전에는 `email_verified_at`이 `null`입니다.
 
 ```
-POST /api/auth/signup {"username":"alice","password":"password1"}
+POST /api/auth/signup {"username":"alice","password":"password1","name":"앨리스","email":"alice@example.com"}
 HTTP 201
 {
     "id": 2,
     "username": "alice",
+    "display_name": "앨리스",
+    "email": "alice@example.com",
+    "email_verified_at": null,
     "role": "user",
     "is_active": true,
     "token_limit": 100000,
-    "created_at": "2026-10-07T08:03:13.207872Z"
+    "created_at": "2026-10-07T08:59:46.644802Z"
 }
 ```
+
+```
+POST /api/auth/signup {"username":"bob","password":"password1","name":"밥","email":"alice@example.com"}
+HTTP 409
+{
+    "detail": {
+        "code": "EMAIL_TAKEN",
+        "message": "이미 사용 중인 이메일입니다."
+    }
+}
+```
+
+이메일 인증 전에는 로그인할 수 없습니다.
+
+```
+POST /api/auth/login {"username":"alice","password":"password1"}
+HTTP 403
+{
+    "detail": {
+        "code": "EMAIL_NOT_VERIFIED",
+        "message": "이메일 인증이 필요합니다."
+    }
+}
+```
+
+`/api/auth/verify-email`은 `username`이나 `email` 중 하나와 `code`를 받습니다. 코드는 10분 동안 유효하며, 5회 이상 틀리면 재발송 전까지 `INVALID_CODE`로 응답합니다.
+
+```
+POST /api/auth/verify-email {"username":"alice","code":"000000"}
+HTTP 400
+{
+    "detail": {
+        "code": "INVALID_CODE",
+        "message": "인증 코드가 올바르지 않습니다."
+    }
+}
+```
+
+```
+POST /api/auth/verify-email {"username":"alice","code":"482913"}
+HTTP 400
+{
+    "detail": {
+        "code": "CODE_EXPIRED",
+        "message": "인증 코드가 만료되었습니다."
+    }
+}
+```
+
+```
+POST /api/auth/verify-email {"email":"alice@example.com","code":"482913"}
+HTTP 200
+{
+    "id": 2,
+    "username": "alice",
+    "display_name": "앨리스",
+    "email": "alice@example.com",
+    "email_verified_at": "2026-10-07T08:59:47.566223Z",
+    "role": "user",
+    "is_active": true,
+    "token_limit": 100000,
+    "created_at": "2026-10-07T08:59:46.644802Z"
+}
+```
+
+`/api/auth/resend-code`는 `username`이나 `email`을 받아 새 코드를 발송하고 204를 반환합니다. 가입되지 않았거나 이미 인증한 계정이어도 같은 204를 반환해 계정 존재 여부를 노출하지 않습니다. 같은 아이디나 이메일로 60초 안에 다시 요청하면 429입니다.
+
+```
+POST /api/auth/resend-code {"username":"alice"}
+HTTP 204
+```
+
+```
+POST /api/auth/resend-code {"username":"alice"}
+HTTP 429
+{
+    "detail": {
+        "code": "TOO_MANY_REQUESTS",
+        "message": "잠시 후 다시 요청해 주세요."
+    }
+}
+```
+
+아이디나 비밀번호가 틀리면 401을 반환합니다.
 
 ```
 POST /api/auth/login {"username":"alice","password":"wrongpass"}
@@ -108,7 +202,7 @@ HTTP 401
 }
 ```
 
-로그인에 성공하면 본문은 회원가입 응답과 같은 사용자 정보이고, 헤더로 쿠키가 발급됩니다. 토큰 값은 `<JWT>`로 가렸습니다.
+로그인에 성공하면 본문은 회원가입 응답과 같은 형식의 사용자 정보이고, 헤더로 쿠키가 발급됩니다. 토큰 값은 `<JWT>`로 가렸습니다.
 
 ```
 POST /api/auth/login {"username":"alice","password":"password1"}
