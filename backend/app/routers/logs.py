@@ -19,5 +19,5 @@ def list_my_chats(
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
 ):
-    items, total = messages.list_chats_by_user(db, user.id, limit, offset)
+    items, total = messages.list_chats(db, limit, offset, user_id=user.id)
     return {"items": items, "total": total}
