@@ -26,8 +26,11 @@ function UserRow({
 
   async function save(patch: UserPatch) {
     setSaving(true)
-    await onSave(patch)
-    setSaving(false)
+    try {
+      await onSave(patch)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
