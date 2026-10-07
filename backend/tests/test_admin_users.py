@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 
 import pytest
@@ -60,7 +61,8 @@ def test_list_users_with_stats(client, db, admin):
     assert "password_hash" not in body["alice"]
 
 
-def test_update_user(client, db, admin):
+def test_update_user(client, db, admin, caplog):
+    caplog.set_level(logging.INFO, logger="app")
     alice = users.create(db, "alice", "hash")
 
     res = client.patch(
@@ -73,6 +75,10 @@ def test_update_user(client, db, admin):
     assert body["is_active"] is False
     assert body["token_limit"] == 5000
     assert body["session_count"] == 0
+    assert (
+        f"admin_user_updated admin_id={admin.id} user_id={alice.id} "
+        "fields=role,is_active,token_limit"
+    ) in caplog.messages
 
 
 def test_update_user_invalid(client, db, admin):
