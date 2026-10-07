@@ -152,11 +152,12 @@ function ChatPage() {
       })
     } catch (err) {
       setError(errorMessage(err, '메시지를 보내지 못했습니다.'))
-      if (err instanceof ApiError && err.sessionId !== null) {
-        await showSavedMessages(err.sessionId)
+      const savedSessionId = err instanceof ApiError ? err.sessionId : null
+      if (savedSessionId !== null) {
+        await showSavedMessages(savedSessionId)
       }
       setPending(null)
-      return false
+      return savedSessionId !== null
     }
     setLoaded({
       sessionId: res.session_id,
