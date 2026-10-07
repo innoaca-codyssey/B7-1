@@ -51,3 +51,7 @@ main {
   color: #c00;
   margin: 0;
 }
+
+.topbar .user {
+  margin-left: auto;
+}
