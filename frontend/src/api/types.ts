@@ -71,6 +71,17 @@ export type ModelOut = {
   is_default: boolean
 }
 
+export type AdminModelOut = {
+  code: string
+  name: string
+  provider: string
+  multiplier: number
+  max_tokens: number
+  is_active: boolean
+  is_default: boolean
+  sort_order: number
+}
+
 export type PresetOut = {
   code: string
   name: string

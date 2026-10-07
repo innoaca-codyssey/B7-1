@@ -1,4 +1,5 @@
 import { useSearchParams } from 'react-router-dom'
+import ModelsTab from '../admin/ModelsTab.tsx'
 import UsersTab from '../admin/UsersTab.tsx'
 
 const TABS = [
@@ -28,6 +29,7 @@ function AdminPage() {
         ))}
       </nav>
       {tab === 'users' && <UsersTab />}
+      {tab === 'models' && <ModelsTab />}
     </>
   )
 }
