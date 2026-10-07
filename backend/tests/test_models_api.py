@@ -1,3 +1,6 @@
+import pytest
+from sqlalchemy.exc import IntegrityError
+
 from app.crud import ai_models
 from app.models import AIModel
 
@@ -44,3 +47,9 @@ def test_list_presets(client):
     body = res.json()
     assert [p["code"] for p in body] == ["tutor", "code_review", "debug", "concept"]
     assert all("system_prompt" not in p for p in body)
+
+
+def test_only_one_default_model(client, db):
+    db.query(AIModel).filter_by(code="gpt-5.4").one().is_default = True
+    with pytest.raises(IntegrityError):
+        db.commit()
