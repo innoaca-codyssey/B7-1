@@ -3,36 +3,66 @@ from fastapi import HTTPException
 
 from app.crud import users
 from app.deps import require_admin
+from tests.helpers import register
+
+
+def signup_payload(**fields):
+    return {
+        "username": "alice",
+        "name": "앨리스",
+        "email": "alice@example.com",
+        "password": "password1",
+        **fields,
+    }
 
 
 def test_signup(client):
-    res = client.post("/api/auth/signup", json={"username": "alice", "password": "password1"})
+    res = client.post(
+        "/api/auth/signup", json=signup_payload(name=" 앨리스 ", email="Alice@Example.COM")
+    )
     assert res.status_code == 201
     body = res.json()
     assert body["username"] == "alice"
+    assert body["name"] == "앨리스"
+    assert "display_name" not in body
+    assert body["email"] == "alice@example.com"
+    assert body["email_verified_at"] is None
     assert body["role"] == "user"
     assert "password_hash" not in body
 
 
 def test_signup_duplicate(client):
-    client.post("/api/auth/signup", json={"username": "alice", "password": "password1"})
-    res = client.post("/api/auth/signup", json={"username": "alice", "password": "password2"})
+    client.post("/api/auth/signup", json=signup_payload())
+
+    res = client.post("/api/auth/signup", json=signup_payload(email="other@example.com"))
     assert res.status_code == 409
     assert res.json()["detail"]["code"] == "USERNAME_TAKEN"
 
+    res = client.post(
+        "/api/auth/signup", json=signup_payload(username="bob", email="ALICE@example.com")
+    )
+    assert res.status_code == 409
+    assert res.json()["detail"]["code"] == "EMAIL_TAKEN"
+
 
 def test_signup_invalid(client):
-    for payload in [
-        {"username": "Alice", "password": "password1"},
-        {"username": "al", "password": "password1"},
-        {"username": "alice", "password": "short"},
-        {"username": "alice", "password": "가" * 25},
+    for fields in [
+        {"username": "Alice"},
+        {"username": "al"},
+        {"password": "short"},
+        {"password": "가" * 25},
+        {"name": None},
+        {"name": "   "},
+        {"name": "가" * 31},
+        {"email": None},
+        {"email": "not-an-email"},
     ]:
+        payload = {k: v for k, v in signup_payload(**fields).items() if v is not None}
         assert client.post("/api/auth/signup", json=payload).status_code == 422
 
 
 def signup_and_login(client, username="alice", password="password1"):
-    client.post("/api/auth/signup", json={"username": username, "password": password})
+    register(client, username, password)
     return client.post("/api/auth/login", json={"username": username, "password": password})
 
 
@@ -47,7 +77,7 @@ def test_login_sets_cookie(client):
 
 
 def test_login_wrong_password(client):
-    client.post("/api/auth/signup", json={"username": "alice", "password": "password1"})
+    register(client, "alice")
     res = client.post("/api/auth/login", json={"username": "alice", "password": "wrongpass"})
     assert res.status_code == 401
     assert res.json()["detail"]["code"] == "INVALID_CREDENTIALS"
@@ -108,3 +138,13 @@ def test_disabled_user_blocked_from_api(client, db):
     for res in [client.get("/api/sessions"), client.get("/api/me/chats")]:
         assert res.status_code == 403
         assert res.json()["detail"]["code"] == "USER_DISABLED"
+
+
+def test_login_requires_verified_email(client):
+    register(client, "alice", verify=False)
+    res = client.post("/api/auth/login", json={"username": "alice", "password": "password1"})
+    assert res.status_code == 403
+    assert res.json()["detail"]["code"] == "EMAIL_NOT_VERIFIED"
+
+    res = client.post("/api/auth/login", json={"username": "alice", "password": "wrongpass"})
+    assert res.status_code == 401
