@@ -9,7 +9,7 @@ const MESSAGES: Record<string, string> = {
   MODEL_UNAVAILABLE:
     '선택한 모델을 사용할 수 없습니다. 다른 모델을 선택해 주세요.',
   NETWORK_ERROR: '서버에 연결할 수 없습니다. 네트워크 상태를 확인해 주세요.',
-  VALIDATION_ERROR: '질문은 공백을 제외하고 1~4000자로 입력해 주세요.',
+  VALIDATION_ERROR: '입력값을 확인해 주세요.',
 }
 
 export function errorMessage(err: unknown, fallback: string) {

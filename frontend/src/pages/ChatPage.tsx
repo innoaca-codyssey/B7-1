@@ -158,12 +158,17 @@ function ChatPage() {
         preset,
       })
     } catch (err) {
-      setError(errorMessage(err, '메시지를 보내지 못했습니다.'))
-      if (err instanceof ApiError && err.sessionId !== null) {
-        await showSavedMessages(err.sessionId)
+      setError(
+        err instanceof ApiError && err.code === 'VALIDATION_ERROR'
+          ? '질문은 공백을 제외하고 1~4000자로 입력해 주세요.'
+          : errorMessage(err, '메시지를 보내지 못했습니다.'),
+      )
+      const savedSessionId = err instanceof ApiError ? err.sessionId : null
+      if (savedSessionId !== null) {
+        await showSavedMessages(savedSessionId)
       }
       setPending(null)
-      return false
+      return savedSessionId !== null
     }
     setUsage(res.usage)
     setLoaded({
