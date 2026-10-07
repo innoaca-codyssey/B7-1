@@ -89,7 +89,12 @@ function ModelRow({
         </span>{' '}
         <button
           type="button"
-          disabled={saving}
+          disabled={saving || model.is_default}
+          title={
+            model.is_default
+              ? '기본 모델은 비활성화할 수 없습니다. 다른 모델을 기본으로 지정한 뒤 변경하세요.'
+              : undefined
+          }
           onClick={() => save({ is_active: !model.is_active })}
         >
           {model.is_active ? '비활성화' : '활성화'}
@@ -140,6 +145,9 @@ function ModelsTab() {
       setModels(await fetchModels())
     } catch (err) {
       setError(errorMessage(err, '모델 설정을 변경하지 못했습니다.'))
+      fetchModels()
+        .then(setModels)
+        .catch(() => {})
     }
   }
 

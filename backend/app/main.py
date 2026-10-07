@@ -8,7 +8,7 @@ from app.config import settings
 from app.crud import ai_models, users
 from app.database import Base, SessionLocal, engine
 from app.logging_config import log_event, setup_logging
-from app.routers import admin, auth, chat, logs, sessions, usage
+from app.routers import admin, admin_models, auth, chat, logs, sessions, usage
 from app.routers import models as models_router
 
 setup_logging()
@@ -32,6 +32,7 @@ app.include_router(sessions.router)
 app.include_router(models_router.router)
 app.include_router(chat.router)
 app.include_router(usage.router)
+app.include_router(admin_models.router)
 app.include_router(logs.router)
 app.include_router(admin.router)
 
