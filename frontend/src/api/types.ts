@@ -1,0 +1,73 @@
+export type Role = 'user' | 'admin'
+
+export type UserOut = {
+  id: number
+  username: string
+  role: Role
+  is_active: boolean
+  token_limit: number
+  created_at: string
+}
+
+export type SessionOut = {
+  id: number
+  title: string
+  model_code: string
+  preset: string
+  created_at: string
+  updated_at: string
+  message_count: number
+}
+
+export type MessageOut = {
+  id: number
+  session_id: number
+  role: 'user' | 'assistant'
+  content: string
+  status: 'ok' | 'error'
+  error_code: string | null
+  model_code: string | null
+  input_tokens: number
+  output_tokens: number
+  billed_tokens: number
+  latency_ms: number | null
+  created_at: string
+}
+
+export type ChatLogItem = {
+  id: number
+  session_id: number
+  session_title: string
+  question: string
+  answer: string
+  status: 'ok' | 'error'
+  error_code: string | null
+  model_code: string | null
+  billed_tokens: number
+  created_at: string
+}
+
+export type ChatLogPage = {
+  items: ChatLogItem[]
+  total: number
+}
+
+export type UsageOut = {
+  month_used: number
+  token_limit: number
+  remaining: number
+}
+
+export type ModelOut = {
+  code: string
+  name: string
+  provider: string
+  multiplier: number
+  is_default: boolean
+}
+
+export type PresetOut = {
+  code: string
+  name: string
+  description: string
+}
