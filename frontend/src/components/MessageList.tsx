@@ -24,7 +24,10 @@ function MessageList({ messages, pending }: Props) {
               <small>토큰 {m.billed_tokens}</small>
             </>
           ) : (
-            <div>{m.content}</div>
+            <>
+              <div>{m.content}</div>
+              {m.error_code && <small>{m.error_code}</small>}
+            </>
           )}
         </div>
       ))}

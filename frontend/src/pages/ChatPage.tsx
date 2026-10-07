@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { api, ApiError } from '../api/client.ts'
+import { errorMessage } from '../api/errors.ts'
 import type { ChatResponse, MessageOut, SessionOut } from '../api/types.ts'
 import ChatInput from '../components/ChatInput.tsx'
 import MessageList from '../components/MessageList.tsx'
@@ -13,10 +14,6 @@ function byUpdatedDesc(a: SessionOut, b: SessionOut) {
 async function fetchSessions() {
   const list = await api.get<SessionOut[]>('/sessions')
   return [...list].sort(byUpdatedDesc)
-}
-
-function errorMessage(err: unknown, fallback: string) {
-  return err instanceof ApiError ? err.message : fallback
 }
 
 function ChatPage() {
@@ -100,6 +97,22 @@ function ChatPage() {
     }
   }
 
+  async function showSavedMessages(sessionId: number) {
+    try {
+      const [list, saved] = await Promise.all([
+        fetchSessions(),
+        api.get<MessageOut[]>(`/sessions/${sessionId}/messages`),
+      ])
+      setSessions(list)
+      setLoaded({ sessionId, messages: saved })
+      if (sessionId !== selectedId) {
+        setSearchParams({ session: String(sessionId) })
+      }
+    } catch {
+      // 원래 실패 안내를 유지한다
+    }
+  }
+
   async function handleSend(message: string) {
     setError('')
     setPending(message)
@@ -111,6 +124,9 @@ function ChatPage() {
       })
     } catch (err) {
       setError(errorMessage(err, '메시지를 보내지 못했습니다.'))
+      if (err instanceof ApiError && err.sessionId !== null) {
+        await showSavedMessages(err.sessionId)
+      }
       setPending(null)
       return false
     }
