@@ -214,3 +214,23 @@ main {
 .logs .nowrap {
   white-space: nowrap;
 }
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #ddd;
+}
+
+.tabs button {
+  padding: 8px 16px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+}
+
+.tabs button.active {
+  border-bottom-color: #333;
+  font-weight: bold;
+}
