@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 
 from app.crud import sessions, users
@@ -27,7 +29,8 @@ def test_admin_chats_requires_admin(client, db):
     assert client.get("/api/admin/chats").status_code == 403
 
 
-def test_admin_chats_all_and_filter(client, db, admin):
+def test_admin_chats_all_and_filter(client, db, admin, caplog):
+    caplog.set_level(logging.INFO, logger="app")
     alice = users.create(db, "alice", "hash")
     bob = users.create(db, "bob", "hash")
     add_pair(db, alice, "alice 질문", "alice 답변")
@@ -47,3 +50,10 @@ def test_admin_chats_all_and_filter(client, db, admin):
 
     res = client.get("/api/admin/chats", params={"limit": 1, "offset": 1})
     assert [i["username"] for i in res.json()["items"]] == ["alice"]
+
+    assert f"admin_chats_viewed admin_id={admin.id} user_id=all offset=0 limit=50" in (
+        caplog.messages
+    )
+    assert f"admin_chats_viewed admin_id={admin.id} user_id={alice.id} offset=0 limit=50" in (
+        caplog.messages
+    )

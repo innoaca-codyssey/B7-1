@@ -62,4 +62,11 @@ def list_chats(
     offset: Annotated[int, Query(ge=0)] = 0,
 ):
     items, total = messages.list_chats(db, limit, offset, user_id=user_id)
+    log_event(
+        "admin_chats_viewed",
+        admin_id=admin.id,
+        user_id=user_id if user_id is not None else "all",
+        offset=offset,
+        limit=limit,
+    )
     return {"items": items, "total": total}
