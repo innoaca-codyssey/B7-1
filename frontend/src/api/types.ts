@@ -3,6 +3,7 @@ export type Role = 'user' | 'admin'
 export type UserOut = {
   id: number
   username: string
+  display_name: string
   role: Role
   is_active: boolean
   token_limit: number

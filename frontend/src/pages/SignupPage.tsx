@@ -3,7 +3,11 @@ import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { api, ApiError } from '../api/client.ts'
 import { useAuth } from '../auth/AuthContext.ts'
 
-function validate(username: string, password: string) {
+function validate(name: string, username: string, password: string) {
+  const nameLength = [...name.trim()].length
+  if (nameLength < 1 || nameLength > 30) {
+    return '이름은 1~30자로 입력해 주세요.'
+  }
   if (!/^[a-z0-9_]{3,30}$/.test(username)) {
     return '아이디는 영문 소문자, 숫자, 밑줄(_)로 3~30자입니다.'
   }
@@ -19,6 +23,7 @@ function validate(username: string, password: string) {
 function SignupPage() {
   const { user, login } = useAuth()
   const navigate = useNavigate()
+  const [name, setName] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -30,14 +35,18 @@ function SignupPage() {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    const message = validate(username, password)
+    const message = validate(name, username, password)
     setError(message)
     if (message) {
       return
     }
     setSubmitting(true)
     try {
-      await api.post('/auth/signup', { username, password })
+      await api.post('/auth/signup', {
+        name: name.trim(),
+        username,
+        password,
+      })
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : '회원가입에 실패했습니다.',
@@ -57,6 +66,14 @@ function SignupPage() {
   return (
     <form className="auth-form" onSubmit={handleSubmit}>
       <h2>회원가입</h2>
+      <label>
+        이름
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          autoComplete="name"
+        />
+      </label>
       <label>
         아이디
         <input
