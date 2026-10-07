@@ -82,6 +82,13 @@ export type AdminModelOut = {
   sort_order: number
 }
 
+export type DailyUsage = {
+  date: string
+  model_code: string
+  billed_tokens: number
+  requests: number
+}
+
 export type PresetOut = {
   code: string
   name: string
