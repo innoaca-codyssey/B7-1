@@ -4,6 +4,9 @@ from fastapi import FastAPI
 
 from app import models  # noqa: F401
 from app.database import Base, engine
+from app.logging_config import setup_logging
+
+setup_logging()
 
 
 @asynccontextmanager
