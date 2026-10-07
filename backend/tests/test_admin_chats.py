@@ -1,4 +1,5 @@
 import logging
+from datetime import UTC, datetime
 
 import pytest
 
@@ -6,10 +7,14 @@ from app.crud import sessions, users
 from app.models import Message
 from app.security import hash_password
 
+NOW = datetime.now(UTC)
+
 
 @pytest.fixture
 def admin(client, db):
-    user = users.create(db, "admin", hash_password("adminpass1"), role="admin")
+    user = users.create(
+        db, "admin", hash_password("adminpass1"), role="admin", email_verified_at=NOW
+    )
     client.post("/api/auth/login", json={"username": "admin", "password": "adminpass1"})
     return user
 
@@ -24,7 +29,7 @@ def add_pair(db, user, question, answer):
 def test_admin_chats_requires_admin(client, db):
     assert client.get("/api/admin/chats").status_code == 401
 
-    users.create(db, "alice", hash_password("password1"))
+    users.create(db, "alice", hash_password("password1"), email_verified_at=NOW)
     client.post("/api/auth/login", json={"username": "alice", "password": "password1"})
     assert client.get("/api/admin/chats").status_code == 403
 
@@ -47,6 +52,7 @@ def test_admin_chats_all_and_filter(client, db, admin, caplog):
     body = client.get("/api/admin/chats", params={"user_id": alice.id}).json()
     assert body["total"] == 1
     assert body["items"][0]["username"] == "alice"
+    assert body["items"][0]["name"] == "alice"
 
     res = client.get("/api/admin/chats", params={"limit": 1, "offset": 1})
     assert [i["username"] for i in res.json()["items"]] == ["alice"]

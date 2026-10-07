@@ -50,7 +50,7 @@ function UserRow({
         </select>
       </td>
       <td className="nowrap">
-        <span className={user.is_active ? '' : 'error'}>
+        <span className={user.is_active ? 'badge ok' : 'badge off'}>
           {user.is_active ? '활성' : '비활성'}
         </span>{' '}
         <button
@@ -111,7 +111,7 @@ function UsersTab() {
 
   return (
     <>
-      {error && <p className="error">{error}</p>}
+      {error && <p className="alert">{error}</p>}
       <table className="logs">
         <thead>
           <tr>

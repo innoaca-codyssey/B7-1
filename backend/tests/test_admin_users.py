@@ -1,5 +1,5 @@
 import logging
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -8,10 +8,14 @@ from app.models import Message
 from app.security import hash_password
 from app.services.quota import month_start_kst
 
+NOW = datetime.now(UTC)
+
 
 @pytest.fixture
 def admin(client, db):
-    user = users.create(db, "admin", hash_password("adminpass1"), role="admin")
+    user = users.create(
+        db, "admin", hash_password("adminpass1"), role="admin", email_verified_at=NOW
+    )
     client.post("/api/auth/login", json={"username": "admin", "password": "adminpass1"})
     return user
 
@@ -19,7 +23,7 @@ def admin(client, db):
 def test_admin_users_requires_admin(client, db):
     assert client.get("/api/admin/users").status_code == 401
 
-    users.create(db, "alice", hash_password("password1"))
+    users.create(db, "alice", hash_password("password1"), email_verified_at=NOW)
     client.post("/api/auth/login", json={"username": "alice", "password": "password1"})
     res = client.get("/api/admin/users")
     assert res.status_code == 403
@@ -56,6 +60,7 @@ def test_list_users_with_stats(client, db, admin):
     assert res.status_code == 200
     body = {u["username"]: u for u in res.json()}
     assert body["alice"]["month_used"] == 30
+    assert body["alice"]["name"] == "alice"
     assert body["alice"]["session_count"] == 1
     assert body["admin"]["month_used"] == 0
     assert "password_hash" not in body["alice"]

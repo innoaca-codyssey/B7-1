@@ -16,6 +16,9 @@ function MessageList({ messages, pending }: Props) {
 
   return (
     <div className="messages">
+      {messages.length === 0 && pending === null && (
+        <p className="empty">질문을 입력해 대화를 시작하세요.</p>
+      )}
       {messages.map((m) => (
         <div key={m.id} className={`message ${m.role} ${m.status}`}>
           {m.role === 'assistant' && m.status === 'ok' ? (
@@ -36,7 +39,9 @@ function MessageList({ messages, pending }: Props) {
           <div className="message user">
             <div>{pending}</div>
           </div>
-          <p>답변을 생성하고 있습니다...</p>
+          <div className="message assistant pending">
+            답변을 생성하고 있습니다...
+          </div>
         </>
       )}
       <div ref={endRef} />

@@ -84,7 +84,7 @@ function ModelRow({
         />
       </td>
       <td className="nowrap">
-        <span className={model.is_active ? '' : 'error'}>
+        <span className={model.is_active ? 'badge ok' : 'badge off'}>
           {model.is_active ? '활성' : '비활성'}
         </span>{' '}
         <button
@@ -102,7 +102,7 @@ function ModelRow({
       </td>
       <td className="nowrap">
         {model.is_default ? (
-          <strong>기본</strong>
+          <span className="badge default">기본</span>
         ) : (
           <button
             type="button"
@@ -153,7 +153,7 @@ function ModelsTab() {
 
   return (
     <>
-      {error && <p className="error">{error}</p>}
+      {error && <p className="alert">{error}</p>}
       <table className="logs">
         <thead>
           <tr>
