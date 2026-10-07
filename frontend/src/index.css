@@ -84,3 +84,8 @@ main {
 .sidebar li.selected {
   background: #eee;
 }
+
+.sidebar > button {
+  width: 100%;
+  margin-bottom: 8px;
+}

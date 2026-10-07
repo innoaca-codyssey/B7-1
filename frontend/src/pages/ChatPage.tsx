@@ -28,12 +28,42 @@ function ChatPage() {
       )
   }, [])
 
+  function showError(err: unknown, fallback: string) {
+    setError(err instanceof ApiError ? err.message : fallback)
+  }
+
+  async function handleCreate() {
+    setError('')
+    try {
+      const session = await api.post<SessionOut>('/sessions', {})
+      setSessions((prev) => [session, ...prev])
+      setSearchParams({ session: String(session.id) })
+    } catch (err) {
+      showError(err, '새 대화를 만들지 못했습니다.')
+    }
+  }
+
+  async function handleDelete(id: number) {
+    setError('')
+    try {
+      await api.delete(`/sessions/${id}`)
+      setSessions((prev) => prev.filter((s) => s.id !== id))
+      if (id === selectedId) {
+        setSearchParams({})
+      }
+    } catch (err) {
+      showError(err, '대화를 삭제하지 못했습니다.')
+    }
+  }
+
   return (
     <div className="chat">
       <SessionSidebar
         sessions={sessions}
         selectedId={selectedId}
         onSelect={(id) => setSearchParams({ session: String(id) })}
+        onCreate={handleCreate}
+        onDelete={handleDelete}
       />
       <section>
         {error && <p className="error">{error}</p>}
