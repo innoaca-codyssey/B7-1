@@ -1,6 +1,6 @@
 import type { ChatLogItem } from '../api/types.ts'
 
-type Item = ChatLogItem & { username?: string }
+type Item = ChatLogItem & { username?: string; display_name?: string }
 
 type Props = {
   items: Item[]
@@ -38,7 +38,11 @@ function ChatLogTable({ items, showUser = false, onRowClick }: Props) {
                   timeStyle: 'short',
                 })}
               </td>
-              {showUser && <td>{item.username}</td>}
+              {showUser && (
+                <td>
+                  {item.display_name}({item.username})
+                </td>
+              )}
               <td>{item.session_title}</td>
               <td>{summary(item.question, 40)}</td>
               <td>

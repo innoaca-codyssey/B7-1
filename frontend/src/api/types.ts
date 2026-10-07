@@ -59,7 +59,7 @@ export type ChatLogPage = {
 }
 
 export type AdminChatLogPage = {
-  items: (ChatLogItem & { username: string })[]
+  items: (ChatLogItem & { username: string; display_name: string })[]
   total: number
 }
 

@@ -35,6 +35,7 @@ function UserRow({
 
   return (
     <tr>
+      <td>{user.display_name}</td>
       <td>
         {user.username}
         {isSelf && ' (나)'}
@@ -115,6 +116,7 @@ function UsersTab() {
       <table className="logs">
         <thead>
           <tr>
+            <th>이름</th>
             <th>아이디</th>
             <th>역할</th>
             <th>상태</th>
