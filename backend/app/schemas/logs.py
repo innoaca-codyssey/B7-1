@@ -19,3 +19,12 @@ class ChatLogOut(BaseModel):
 class ChatLogPage(BaseModel):
     items: list[ChatLogOut]
     total: int
+
+
+class AdminChatLogOut(ChatLogOut):
+    username: str
+
+
+class AdminChatLogPage(BaseModel):
+    items: list[AdminChatLogOut]
+    total: int
