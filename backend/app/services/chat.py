@@ -74,6 +74,7 @@ def handle_chat(db: Session, user: User, body: ChatRequest, request_id: str) -> 
         user_message.error_code = e.code
         save_message(
             db,
+            question=user_message,
             session_id=session_id,
             user_id=user_id,
             role="assistant",
@@ -104,6 +105,7 @@ def handle_chat(db: Session, user: User, body: ChatRequest, request_id: str) -> 
 
     assistant_message = save_message(
         db,
+        question=user_message,
         session_id=session_id,
         user_id=user_id,
         role="assistant",
@@ -125,21 +127,34 @@ def handle_chat(db: Session, user: User, body: ChatRequest, request_id: str) -> 
     )
 
 
-def save_message(db: Session, user_id: int, **fields) -> Message:
+def save_message(db: Session, user_id: int, question: Message | None = None, **fields) -> Message:
     try:
         message = messages.create(db, user_id=user_id, **fields)
     except SQLAlchemyError as e:
         db.rollback()
         log_event("db_save_fail", logging.ERROR, user_id=user_id, error=type(e).__name__)
+        if question is not None:
+            mark_question_failed(db, question, user_id)
         raise HTTPException(
             status_code=500,
             detail={
                 "code": "DB_ERROR",
                 "message": "대화를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+                "session_id": fields["session_id"],
             },
         ) from e
     log_event("db_save_success", user_id=user_id, message_id=message.id)
     return message
+
+
+def mark_question_failed(db: Session, question: Message, user_id: int) -> None:
+    try:
+        question.status = "error"
+        question.error_code = "DB_ERROR"
+        db.commit()
+    except SQLAlchemyError as e:
+        db.rollback()
+        log_event("db_save_fail", logging.ERROR, user_id=user_id, error=type(e).__name__)
 
 
 def touch_session(db: Session, chat_session: ChatSession, model_code: str, preset: str) -> None:
