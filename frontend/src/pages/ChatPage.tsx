@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { api, ApiError } from '../api/client.ts'
-import type { SessionOut } from '../api/types.ts'
+import type { MessageOut, SessionOut } from '../api/types.ts'
+import MessageList from '../components/MessageList.tsx'
 import SessionSidebar from '../components/SessionSidebar.tsx'
 
 function byUpdatedDesc(a: SessionOut, b: SessionOut) {
@@ -14,6 +15,14 @@ function ChatPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const selectedId = Number(searchParams.get('session')) || null
   const selected = sessions.find((s) => s.id === selectedId)
+  const [loaded, setLoaded] = useState<{
+    sessionId: number
+    messages: MessageOut[]
+  } | null>(null)
+  const messages =
+    selectedId !== null && loaded?.sessionId === selectedId
+      ? loaded.messages
+      : []
 
   useEffect(() => {
     api
@@ -27,6 +36,30 @@ function ChatPage() {
         ),
       )
   }, [])
+
+  useEffect(() => {
+    if (selectedId === null) {
+      return
+    }
+    let ignore = false
+    api
+      .get<MessageOut[]>(`/sessions/${selectedId}/messages`)
+      .then((list) => {
+        if (!ignore) {
+          setLoaded({ sessionId: selectedId, messages: list })
+        }
+      })
+      .catch((err) =>
+        setError(
+          err instanceof ApiError
+            ? err.message
+            : '메시지를 불러오지 못했습니다.',
+        ),
+      )
+    return () => {
+      ignore = true
+    }
+  }, [selectedId])
 
   function showError(err: unknown, fallback: string) {
     setError(err instanceof ApiError ? err.message : fallback)
@@ -68,6 +101,7 @@ function ChatPage() {
       <section>
         {error && <p className="error">{error}</p>}
         <h2>{selected ? selected.title : '새 대화'}</h2>
+        <MessageList messages={messages} />
       </section>
     </div>
   )

@@ -89,3 +89,41 @@ main {
   width: 100%;
   margin-bottom: 8px;
 }
+
+.chat > section {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 88px);
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.message {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+.message.user {
+  background: #eef3ff;
+  white-space: pre-wrap;
+}
+
+.message.assistant {
+  background: #f6f6f6;
+}
+
+.message.error {
+  color: #c00;
+}
+
+.message > :first-child {
+  margin-top: 0;
+}
+
+.message small {
+  color: #666;
+}
