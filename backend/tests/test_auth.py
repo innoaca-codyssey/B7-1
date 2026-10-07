@@ -23,7 +23,8 @@ def test_signup(client):
     assert res.status_code == 201
     body = res.json()
     assert body["username"] == "alice"
-    assert body["display_name"] == "앨리스"
+    assert body["name"] == "앨리스"
+    assert "display_name" not in body
     assert body["email"] == "alice@example.com"
     assert body["email_verified_at"] is None
     assert body["role"] == "user"

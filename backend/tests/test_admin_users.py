@@ -60,7 +60,7 @@ def test_list_users_with_stats(client, db, admin):
     assert res.status_code == 200
     body = {u["username"]: u for u in res.json()}
     assert body["alice"]["month_used"] == 30
-    assert body["alice"]["display_name"] == "alice"
+    assert body["alice"]["name"] == "alice"
     assert body["alice"]["session_count"] == 1
     assert body["admin"]["month_used"] == 0
     assert "password_hash" not in body["alice"]

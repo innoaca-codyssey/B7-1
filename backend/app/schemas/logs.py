@@ -23,7 +23,7 @@ class ChatLogPage(BaseModel):
 
 class AdminChatLogOut(ChatLogOut):
     username: str
-    display_name: str
+    name: str
 
 
 class AdminChatLogPage(BaseModel):

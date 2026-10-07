@@ -3,6 +3,7 @@ from typing import Annotated
 
 from pydantic import (
     AfterValidator,
+    AliasChoices,
     BaseModel,
     ConfigDict,
     EmailStr,
@@ -54,7 +55,7 @@ class UserOut(BaseModel):
 
     id: int
     username: str
-    display_name: str
+    name: str = Field(validation_alias=AliasChoices("display_name", "name"))
     email: str | None
     email_verified_at: datetime | None
     role: str
