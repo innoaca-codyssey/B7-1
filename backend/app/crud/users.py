@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models import User
+from app.security import hash_password
 
 
 class UsernameTakenError(Exception):
@@ -13,8 +14,8 @@ def get_by_username(db: Session, username: str) -> User | None:
     return db.scalar(select(User).where(User.username == username))
 
 
-def create(db: Session, username: str, password_hash: str) -> User:
-    user = User(username=username, password_hash=password_hash)
+def create(db: Session, username: str, password_hash: str, role: str = "user") -> User:
+    user = User(username=username, password_hash=password_hash, role=role)
     db.add(user)
     try:
         db.commit()
@@ -27,3 +28,13 @@ def create(db: Session, username: str, password_hash: str) -> User:
 
 def get(db: Session, user_id: int) -> User | None:
     return db.get(User, user_id)
+
+
+def ensure_admin(db: Session, username: str, password: str) -> User:
+    user = get_by_username(db, username)
+    if not user:
+        return create(db, username, hash_password(password), role="admin")
+    if user.role != "admin":
+        user.role = "admin"
+        db.commit()
+    return user
