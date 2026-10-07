@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
+import Layout from './components/Layout.tsx'
 import AdminPage from './pages/AdminPage.tsx'
 import ChatPage from './pages/ChatPage.tsx'
 import LoginPage from './pages/LoginPage.tsx'
@@ -10,9 +11,11 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
-      <Route path="/" element={<ChatPage />} />
-      <Route path="/logs" element={<LogsPage />} />
-      <Route path="/admin" element={<AdminPage />} />
+      <Route element={<Layout />}>
+        <Route path="/" element={<ChatPage />} />
+        <Route path="/logs" element={<LogsPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+      </Route>
     </Routes>
   )
 }
