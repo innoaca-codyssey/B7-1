@@ -289,6 +289,103 @@ curl -s -b admin-cookies.txt 'https://chat.codyssey.run/api/admin/chats?user_id=
 
 같은 내용은 웹 화면의 내 대화 기록(`/logs`)과 관리자 화면의 대화 로그 탭에서도 확인할 수 있습니다.
 
+## 서버 로그와 오류 추적
+
+API는 이벤트 이름 뒤에 `key=value` 필드를 붙인 한 줄 로그를 남깁니다. 값에 공백이나 `=`가 있으면 따옴표로 감쌉니다.
+
+| 이벤트 | 시점 | 주요 필드 |
+|---|---|---|
+| `request_received` | 요청 수신. `/api/chat`은 로그인 사용자 확인 후 `user_id`와 함께 한 번 더 남깁니다 | `method`, `path`, `request_id`, `user_id` |
+| `ai_call_start` | AI API 호출 직전 | `user_id`, `request_id`, `model` |
+| `ai_call_success` | AI 응답 수신 | `request_id`, `latency_ms`, `tokens` |
+| `ai_call_fail` | AI 호출 실패, 타임아웃 | `request_id`, `error_code`, `latency_ms` |
+| `db_save_success` | 메시지 저장 성공 | `user_id`, `message_id` |
+| `db_save_fail` | 메시지 저장 실패 | `user_id`, `error` |
+
+`request_id`는 요청마다 만드는 12자리 값입니다. 같은 요청의 로그는 모두 같은 `request_id`를 가지며, 답변 메시지 행의 `messages.request_id`에도 저장되어 DB 기록과 서버 로그를 연결할 수 있습니다. 저장 로그에는 `request_id` 대신 `message_id`가 남으므로 `grep -A`로 뒤따르는 줄까지 함께 확인합니다.
+
+### 오류 응답
+
+| 코드 | 상태 | 상황 |
+|---|---|---|
+| `AI_TIMEOUT` | 504 | AI 응답이 `AI_TIMEOUT_SECONDS` 안에 오지 않음 |
+| `AI_ERROR` | 502 | AI API 오류, 연결 실패 |
+| `QUOTA_EXCEEDED` | 429 | 이번 달 사용량이 월 토큰 한도 이상 |
+
+AI 호출이 실패하면 질문과 오류 안내 메시지를 `status=error`로 저장하고, 응답의 `detail`에 `session_id`를 함께 돌려줍니다. 화면은 이 값으로 실패한 질문이 남은 대화를 다시 불러옵니다. 할당량 초과는 AI를 호출하기 전에 차단하므로 메시지를 저장하지 않습니다.
+
+아래는 로컬 실행 예시입니다.
+
+### 정상 응답
+
+```bash
+docker compose logs api | grep -A4 request_id=f636d4068cbb
+```
+
+```
+api-1  | 2026-10-07 09:17:43,242 INFO request_received method=POST path=/api/chat request_id=f636d4068cbb
+api-1  | 2026-10-07 09:17:43,247 INFO request_received user_id=1 path=/api/chat request_id=f636d4068cbb
+api-1  | 2026-10-07 09:17:43,255 INFO db_save_success user_id=1 message_id=1
+api-1  | 2026-10-07 09:17:43,255 INFO ai_call_start user_id=1 request_id=f636d4068cbb model=gpt-5-mini
+api-1  | 2026-10-07 09:17:49,695 INFO HTTP Request: POST https://copa.codyssey.kr/v1/chat/completions "HTTP/1.1 200 "
+api-1  | 2026-10-07 09:17:49,706 INFO ai_call_success request_id=f636d4068cbb latency_ms=6450 tokens=738
+api-1  | 2026-10-07 09:17:49,713 INFO db_save_success user_id=1 message_id=2
+api-1  | INFO:     172.29.0.4:41458 - "POST /api/chat HTTP/1.1" 200 OK
+```
+
+### 타임아웃
+
+`.env`에 `AI_TIMEOUT_SECONDS=1`을 넣고 `api` 컨테이너를 다시 만든 뒤 질문했습니다.
+
+```bash
+curl -s -w '\n%{http_code}\n' -b cookies.txt -H 'Content-Type: application/json' \
+  -d '{"message":"TCP와 UDP 차이를 자세히 설명해줘"}' http://localhost:8081/api/chat
+```
+
+```
+{"detail":{"code":"AI_TIMEOUT","message":"현재 응답이 지연되고 있어요. 잠시 후 다시 시도해 주세요.","session_id":2}}
+504
+```
+
+```bash
+docker compose logs api | grep -A4 request_id=0cbebe062a35
+```
+
+```
+api-1  | 2026-10-07 09:18:22,570 INFO request_received method=POST path=/api/chat request_id=0cbebe062a35
+api-1  | 2026-10-07 09:18:22,576 INFO request_received user_id=1 path=/api/chat request_id=0cbebe062a35
+api-1  | 2026-10-07 09:18:22,584 INFO db_save_success user_id=1 message_id=3
+api-1  | 2026-10-07 09:18:22,585 INFO ai_call_start user_id=1 request_id=0cbebe062a35 model=gpt-5-mini
+api-1  | 2026-10-07 09:18:23,679 WARNING ai_call_fail request_id=0cbebe062a35 error_code=AI_TIMEOUT latency_ms=1093
+api-1  | 2026-10-07 09:18:23,691 INFO db_save_success user_id=1 message_id=4
+api-1  | INFO:     172.29.0.4:50224 - "POST /api/chat HTTP/1.1" 504 Gateway Timeout
+```
+
+### 할당량 초과
+
+관리자 화면에서 월 토큰 한도를 100으로 낮춘 뒤 질문했습니다. 이번 달 사용량 369가 한도 이상이므로 AI를 호출하지 않고 429를 돌려줍니다.
+
+```bash
+curl -s -w '\n%{http_code}\n' -b cookies.txt -H 'Content-Type: application/json' \
+  -d '{"message":"파이썬 GIL이 뭐야?"}' http://localhost:8081/api/chat
+```
+
+```
+{"detail":{"code":"QUOTA_EXCEEDED","message":"이번 달 사용량을 모두 사용했습니다. 관리자에게 문의해 주세요."}}
+429
+```
+
+```bash
+docker compose logs api | grep -B2 -A1 quota_exceeded
+```
+
+```
+api-1  | 2026-10-07 09:18:31,566 INFO request_received method=POST path=/api/chat request_id=368ee3600eed
+api-1  | 2026-10-07 09:18:31,568 INFO request_received user_id=1 path=/api/chat request_id=368ee3600eed
+api-1  | 2026-10-07 09:18:31,569 WARNING quota_exceeded user_id=1 month_used=369 token_limit=100
+api-1  | INFO:     172.29.0.4:37116 - "POST /api/chat HTTP/1.1" 429 Too Many Requests
+```
+
 ## 실행 방법
 
 ```bash
