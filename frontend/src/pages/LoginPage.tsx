@@ -50,9 +50,9 @@ function LoginPage() {
           required
         />
       </label>
-      {notice && !error && <p>{notice}</p>}
-      {error && <p className="error">{error}</p>}
-      <button type="submit" disabled={submitting}>
+      {notice && !error && <p className="notice">{notice}</p>}
+      {error && <p className="alert">{error}</p>}
+      <button type="submit" className="primary" disabled={submitting}>
         로그인
       </button>
       <p>

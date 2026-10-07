@@ -29,6 +29,7 @@ function ChatPage() {
   const [sessionsLoaded, setSessionsLoaded] = useState(false)
   const [error, setError] = useState('')
   const [pending, setPending] = useState<string | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [models, setModels] = useState<ModelOut[]>([])
   const [presets, setPresets] = useState<PresetOut[]>([])
   const [modelCode, setModelCode] = useState<string | null>(null)
@@ -103,12 +104,26 @@ function ChatPage() {
     }
   }, [loadId])
 
+  useEffect(() => {
+    if (!sidebarOpen) {
+      return
+    }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setSidebarOpen(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [sidebarOpen])
+
   async function handleCreate() {
     setError('')
     try {
       const session = await api.post<SessionOut>('/sessions', {})
       setSessions((prev) => [session, ...prev])
       setSearchParams({ session: String(session.id) })
+      setSidebarOpen(false)
     } catch (err) {
       setError(errorMessage(err, '새 대화를 만들지 못했습니다.'))
     }
@@ -192,38 +207,67 @@ function ChatPage() {
       <SessionSidebar
         sessions={sessions}
         selectedId={selectedId}
-        onSelect={(id) => setSearchParams({ session: String(id) })}
+        open={sidebarOpen}
+        onSelect={(id) => {
+          setSearchParams({ session: String(id) })
+          setSidebarOpen(false)
+        }}
         onCreate={handleCreate}
         onDelete={handleDelete}
       />
+      {sidebarOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
       <section>
-        {error && <p className="error">{error}</p>}
-        <h2>{selected ? selected.title : '새 대화'}</h2>
-        <MessageList messages={messages} pending={pending} />
-        <div className="chat-options">
-          <select
-            value={model ?? ''}
-            onChange={(e) => setModelCode(e.target.value)}
+        {error && (
+          <p className="alert" role="alert">
+            {error}
+          </p>
+        )}
+        <div className="chat-header">
+          <button
+            type="button"
+            className="sidebar-toggle"
+            aria-controls="session-sidebar"
+            aria-expanded={sidebarOpen}
+            onClick={() => setSidebarOpen(true)}
           >
-            {models.map((m) => (
-              <option key={m.code} value={m.code}>
-                {m.name} (x{m.multiplier})
-              </option>
-            ))}
-          </select>
-          <select
-            value={preset ?? ''}
-            onChange={(e) => setPresetCode(e.target.value)}
-          >
-            {presets.map((p) => (
-              <option key={p.code} value={p.code} title={p.description}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-          {usage && <UsageBar usage={usage} />}
+            대화 목록
+          </button>
+          <h2 className="chat-title">
+            {selected ? selected.title : '새 대화'}
+          </h2>
         </div>
-        <ChatInput sending={pending !== null} onSend={handleSend} />
+        <MessageList messages={messages} pending={pending} />
+        <div className="composer">
+          <div className="chat-options">
+            <select
+              value={model ?? ''}
+              onChange={(e) => setModelCode(e.target.value)}
+            >
+              {models.map((m) => (
+                <option key={m.code} value={m.code}>
+                  {m.name} (x{m.multiplier})
+                </option>
+              ))}
+            </select>
+            <select
+              value={preset ?? ''}
+              onChange={(e) => setPresetCode(e.target.value)}
+            >
+              {presets.map((p) => (
+                <option key={p.code} value={p.code} title={p.description}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            {usage && <UsageBar usage={usage} />}
+          </div>
+          <ChatInput sending={pending !== null} onSend={handleSend} />
+        </div>
       </section>
     </div>
   )
